@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="80dp"
+    android:layout_height="80dp"
+    android:id="@+id/remove_view_image"
+    android:padding="16dp"
+    android:src="@android:drawable/ic_menu_close_clear_cancel"
+    android:background="@drawable/remove_view_background"
+    android:contentDescription="@null" />
