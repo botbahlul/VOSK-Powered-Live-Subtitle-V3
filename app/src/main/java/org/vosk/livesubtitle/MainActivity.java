@@ -30,8 +30,10 @@ import android.widget.Toast;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -39,6 +41,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -673,7 +677,8 @@ public class MainActivity extends AppCompatActivity {
             if (ddir.exists()) {
                 deleteRecursively(ddir);
                 String msg = ddir + "deleted";
-                toast(msg);
+                //toast(msg);
+                setText(textview_debug, msg);
             }
             check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
         });
@@ -686,8 +691,16 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 mProgressBar.setVisibility(View.VISIBLE);
-                new DownloadFileFromURL().execute(VOSK_MODEL.URL_ADDRESS);
+                textview_filesize.setVisibility(View.VISIBLE);
+                textview_bytesdownloaded.setVisibility(View.VISIBLE);
 
+                //new DownloadFileFromURL().execute(VOSK_MODEL.URL_ADDRESS);
+
+                new Thread(new Runnable() {
+                    public void run() {
+                        DownloadModel(VOSK_MODEL.URL_ADDRESS);
+                    }
+                }).start();
             }
         });
 
@@ -826,17 +839,12 @@ public class MainActivity extends AppCompatActivity {
                 if (connection.getContentLength() > 0) {
                     VOSK_MODEL.ZIP_FILESIZE = connection.getContentLength();
                     String string_filesize = "File size=" + VOSK_MODEL.ZIP_FILESIZE + " bytes";
-                    Handler handler = new Handler(Looper.getMainLooper()) {
-                        @Override
-                        public void handleMessage(Message msg) {
-                            textview_filesize.setText(string_filesize);
-                        }
-                    };
-                    handler.sendEmptyMessage(1);
+                    setText(textview_filesize, string_filesize);
                 }
 
             } catch (Exception e) {
                 //Log.e("Error: ", e.getMessage());
+                setText(textview_debug, e.getMessage());
             }
             return null;
         }
@@ -845,21 +853,15 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String file_url) {
             if (VOSK_MODEL.ZIP_FILESIZE > 0) {
                 String string_filesize = "File size=" + VOSK_MODEL.ZIP_FILESIZE + " bytes";
-                Handler handler = new Handler(Looper.getMainLooper()) {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        textview_filesize.setText(string_filesize);
-                    }
-                };
-                handler.sendEmptyMessage(1);
+                setText(textview_filesize, string_filesize);
             }
         }
-
     }
 
     @SuppressLint("StaticFieldLeak")
     class DownloadFileFromURL extends AsyncTask<String, String, String> {
-        int lengthOfFile, total, count;
+        int lengthOfFile, count;
+        long total;
 
         /**
          * Before starting background thread Show Progress Bar Dialog
@@ -900,15 +902,8 @@ public class MainActivity extends AppCompatActivity {
                     total += count;
                     publishProgress("" + ((total * 100) / lengthOfFile));
                     output.write(data, 0, count);
-                    long finalTotal = total;
-                    Handler handler = new Handler(Looper.getMainLooper()) {
-                        @SuppressLint("SetTextI18n")
-                        @Override
-                        public void handleMessage(Message msg) {
-                            textview_bytesdownloaded.setText("File downloaded=" + finalTotal + " bytes");
-                        }
-                    };
-                    handler.sendEmptyMessage(1);
+                    String string_bytes_downloaded = "File downloaded=" + total + " bytes";
+                    setText(textview_bytesdownloaded, string_bytes_downloaded);
                 }
 
                 output.flush();
@@ -917,8 +912,8 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (Exception e) {
                 //Log.e("Error: ", e.getMessage());
+                setText(textview_debug, e.getMessage());
             }
-
             return null;
         }
 
@@ -950,7 +945,130 @@ public class MainActivity extends AppCompatActivity {
             textview_debug.setText(r);
             check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
         }
+    }
 
+    int filesize;
+    public int get_vosk_model_filesize(String models_URL) {
+        ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.execute(() -> {
+            try {
+                URL url = new URL(models_URL);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+                String respond ="Server returned HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage();
+                setText(textview_debug, respond);
+                if (connection.getContentLength() > 0) {
+                    VOSK_MODEL.ZIP_FILESIZE = connection.getContentLength();
+                    filesize = connection.getContentLength();
+                    String string_filesize = "File size=" + VOSK_MODEL.ZIP_FILESIZE + " bytes";
+                    setText(textview_filesize, string_filesize);
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
+                textview_debug.setText(e.getMessage());
+                //new Handler().postDelayed(() -> textview_debug.setText(""), 3000);
+            }
+        });
+        return filesize;
+    }
+
+    int lengthOfFile, count;
+    long total;
+    public void DownloadModel (String models_URL) {
+        mProgressBar.setIndeterminate(false);
+        mProgressBar.setMax(100);
+        mProgressBar.setProgress(0);
+
+        File dir = new File(String.valueOf(this.getExternalFilesDir(null)));
+        if(!(dir.exists())){
+            boolean mkdir = dir.mkdir();
+            if (!mkdir) {
+                String msg = "Directory creation failed";
+                //toast(msg);
+                textview_debug.setText(msg);
+                //new Handler().postDelayed(() -> textview_debug.setText(""), 3000);
+            }
+        }
+
+        File edir = new File(this.getExternalFilesDir(null), "downloaded");
+        if(!(edir.exists())){
+            boolean mkdir = edir.mkdir();
+            if (!mkdir) {
+                String msg = "Directory creation failed";
+                //toast(msg);
+                textview_debug.setText(msg);
+                //new Handler().postDelayed(() -> textview_debug.setText(""), 3000);
+            }
+        }
+
+        Handler handler1 = new Handler(Looper.getMainLooper());
+        ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.execute(() -> {
+            try {
+                URL url = new URL(models_URL);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                byte[] data = new byte[1024];
+                total = 0;
+                if (connection.getContentLength() > 0) {
+                    lengthOfFile = connection.getContentLength();
+                    String string_filesize = "File size=" + lengthOfFile + " bytes";
+                    String r ="Server returned HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage();
+                    InputStream input = connection.getInputStream();
+                    OutputStream output = new FileOutputStream(VOSK_MODEL.ZIP_FILE_COMPLETE_PATH);
+
+                    while ((count = input.read(data)) != -1) {
+                        total += count;
+                        publishProgress((int) ((total * 100) / lengthOfFile));
+                        output.write(data, 0, count);
+                        String string_bytes_received = "Bytes received=" + total + " bytes";
+                        setText(textview_debug, r);
+                        setText(textview_filesize, string_filesize);
+                        setText(textview_bytesdownloaded, string_bytes_received);
+                    }
+                    output.flush();
+                    output.close();
+                    input.close();
+                }
+
+                handler1.post(() -> {
+                    //UI Thread work here
+                    mProgressBar.setVisibility(View.GONE);
+                    textview_filesize.setVisibility(View.GONE);
+                    textview_bytesdownloaded.setVisibility(View.GONE);
+                    VOSK_MODEL.DOWNLOADED = true;
+                    Decompress df = new Decompress(VOSK_MODEL.ZIP_FILE_COMPLETE_PATH, VOSK_MODEL.EXTRACTED_PATH);
+                    df.unzip();
+                    File oldfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ZIP_FILENAME.replace(".zip", ""));
+                    File newfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ISO_CODE);
+
+                    boolean rendir = oldfolder.renameTo(newfolder);
+                    if (!rendir) {
+                        String msg = "Directory rename failed";
+                        //toast(msg);
+                        textview_debug.setText(msg);
+                        //new Handler().postDelayed(() -> textview_debug.setText(""), 3000);
+                    }
+
+                    File ddir = new File(VOSK_MODEL.ZIP_FILE_COMPLETE_PATH);
+                    deleteRecursively(ddir);
+                    VOSK_MODEL.USED_PATH = VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE;
+                    textview_debug.setText("");
+                    check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
+                });
+
+            } catch (Exception e) {
+                check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
+                setText(textview_debug, e.getMessage());
+            }
+        });
+    }
+
+    private void publishProgress(Integer... progress) {
+        mProgressBar.setProgress(progress[0]);
     }
 
     private void check_vosk_downloaded_model(String string_model) {
@@ -966,6 +1084,7 @@ public class MainActivity extends AppCompatActivity {
             textview_bytesdownloaded.setVisibility(View.GONE);
             textview_downloaded_status.setVisibility(View.GONE);
             textview_model_used_path.setVisibility(View.GONE);
+            textview_debug.setText("");
         } else {
             if (edir.exists()) {
                 VOSK_MODEL.DOWNLOADED = true;
@@ -992,7 +1111,8 @@ public class MainActivity extends AppCompatActivity {
                 textview_model_URL.setVisibility(View.VISIBLE);
                 textview_model_zip_file.setVisibility(View.VISIBLE);
                 textview_filesize.setVisibility(View.VISIBLE);
-                new getFilesize().execute(VOSK_MODEL.URL_ADDRESS);
+                //new getFilesize().execute(VOSK_MODEL.URL_ADDRESS);
+                VOSK_MODEL.ZIP_FILESIZE = get_vosk_model_filesize(VOSK_MODEL.URL_ADDRESS);
                 textview_model_used_path.setVisibility(View.GONE);
             }
         }
@@ -1007,6 +1127,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void toast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void setText(final TextView tv, final String text){
+        Handler handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                // Any UI task, example
+                tv.setText(text);
+            }
+        };
+        handler.sendEmptyMessage(1);
     }
 
 }

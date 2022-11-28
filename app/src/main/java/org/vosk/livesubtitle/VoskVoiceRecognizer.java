@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.vosk.LibVosk;
@@ -147,8 +149,8 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             MainActivity.voice_text.setHint(hints);
             stopSelf();
             String msg = "You need to download the model first";
-            toast(msg);
-            MainActivity.textview_debug.setText("");
+            //toast(msg);
+            setText(MainActivity.textview_debug, msg);
         }
     }
 
@@ -297,6 +299,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             @Override
             public void onError(Exception e) {
                 //toast("Unknown error");
+                setText(MainActivity.textview_debug, e.getMessage());
             }
         });
         translate.execute(t, src, dst);
@@ -330,6 +333,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             @Override
             public void onError(Exception e) {
                 //toast("Unknown error");
+                setText(MainActivity.textview_debug, e.getMessage());
             }
         });
         translate.execute(t, src, dst);
@@ -342,6 +346,17 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void setText(final TextView tv, final String text){
+        Handler handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                // Any UI task, example
+                tv.setText(text);
+            }
+        };
+        handler.sendEmptyMessage(1);
     }
 
 }
