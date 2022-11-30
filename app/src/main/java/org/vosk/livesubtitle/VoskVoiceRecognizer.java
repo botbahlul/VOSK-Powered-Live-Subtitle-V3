@@ -286,8 +286,22 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
                         create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
                     } else {
                         create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
+                        create_overlay_translation_text.overlay_translation_text_container.setBackgroundColor(Color.TRANSPARENT);
                         create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
+                        create_overlay_translation_text.overlay_translation_text.setBackgroundColor(Color.TRANSPARENT);
+                        create_overlay_translation_text.overlay_translation_text.setTextIsSelectable(true);
                         create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
+                        create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
+                        Spannable spannableString = new SpannableStringBuilder(TRANSLATION_TEXT.STRING);
+                        spannableString.setSpan(new ForegroundColorSpan(Color.YELLOW),
+                                0,
+                                create_overlay_translation_text.overlay_translation_text.getSelectionEnd(),
+                                0);
+                        spannableString.setSpan(new BackgroundColorSpan(Color.parseColor("#80000000")),
+                                0,
+                                create_overlay_translation_text.overlay_translation_text.getSelectionEnd(),
+                                0);
+                        create_overlay_translation_text.overlay_translation_text.setText(spannableString);
                         create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
                     }
                 } else {
