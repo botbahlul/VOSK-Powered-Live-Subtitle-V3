@@ -2,10 +2,15 @@ package org.vosk.livesubtitle;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -261,6 +266,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             String string_overlaying = "overlaying=" + OVERLAYING_STATUS.OVERLAYING;
             MainActivity.textview_overlaying.setText(string_overlaying);
         } else {
+            MainActivity.textview_debug.setText("");
             try {
                 Recognizer rec = new Recognizer(model, 16000.0f);
                 speechService = new SpeechService(rec, 16000.0f);

@@ -87,59 +87,62 @@ public class create_overlay_mic_button extends Service{
                 96,
                 0,
                 0,
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        RECOGNIZING_STATUS.RECOGNIZING = !RECOGNIZING_STATUS.RECOGNIZING;
-                        String string_recognizing = "recognizing=" + RECOGNIZING_STATUS.RECOGNIZING;
-                        MainActivity.textview_recognizing.setText(string_recognizing);
-                        if (!RECOGNIZING_STATUS.RECOGNIZING) {
-                            stop_vosk_voice_recognizer();
-                            mic_button.setImageResource(R.drawable.ic_mic_black_off);
-                            MainActivity.textview_debug.setText("");
-                            VOICE_TEXT.STRING = "";
-                            TRANSLATION_TEXT.STRING = "";
-                            MainActivity.voice_text.setText("");
-                            String hints = "Recognized words";
-                            MainActivity.voice_text.setHint(hints);
-                            //MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, MainActivity.mStreamVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-                            MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int)Double.parseDouble(String.valueOf((long)(MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
+                //new View.OnClickListener() {
+                v -> {
+                    RECOGNIZING_STATUS.RECOGNIZING = !RECOGNIZING_STATUS.RECOGNIZING;
+                    String string_recognizing = "recognizing=" + RECOGNIZING_STATUS.RECOGNIZING;
+                    MainActivity.textview_recognizing.setText(string_recognizing);
+                    if (!RECOGNIZING_STATUS.RECOGNIZING) {
+                        stop_vosk_voice_recognizer();
+                        mic_button.setImageResource(R.drawable.ic_mic_black_off);
+                        MainActivity.textview_debug.setText("");
+                        VOICE_TEXT.STRING = "";
+                        TRANSLATION_TEXT.STRING = "";
+                        MainActivity.voice_text.setText("");
+                        String hints = "Recognized words";
+                        MainActivity.voice_text.setHint(hints);
+                        //MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, MainActivity.mStreamVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                        MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int)Double.parseDouble(String.valueOf((long)(MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
+                        if (create_overlay_translation_text.overlay_translation_text != null) {
+                            create_overlay_translation_text.overlay_translation_text.setText("");
+                            create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
+                            create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
+                        }
+                    } else {
+                        MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                        start_vosk_voice_recognizer();
+                        mic_button.setImageResource(R.drawable.ic_mic_black_on);
+                        MainActivity.textview_debug.setText(R.string.say_something);
+                        if (TRANSLATION_TEXT.STRING.length() == 0) {
                             if (create_overlay_translation_text.overlay_translation_text != null) {
-                                create_overlay_translation_text.overlay_translation_text.setText("");
                                 create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
                                 create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
                             }
                         } else {
-                            MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-                            start_vosk_voice_recognizer();
-                            mic_button.setImageResource(R.drawable.ic_mic_black_on);
-                            MainActivity.textview_debug.setText(R.string.say_something);
-                            if (TRANSLATION_TEXT.STRING.length() == 0) {
-                                if (create_overlay_translation_text.overlay_translation_text != null) {
-                                    create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
-                                    create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
-                                }
-                            } else {
-                                if (create_overlay_translation_text.overlay_translation_text != null) {
-                                    create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
-                                    create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
-                                }
+                            if (create_overlay_translation_text.overlay_translation_text != null) {
+                                create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
+                                create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
                             }
                         }
                     }
                 },
-                new View.OnLongClickListener() {
+                /*new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
                         return false;
                     }
-                },
-                new GlobalOverlay.OnRemoveOverlayListener() {
+                },*/
+                v -> false,
+                /*new GlobalOverlay.OnRemoveOverlayListener() {
                     @Override
                     public void onRemoveOverlay(View mic_button, boolean isRemovedByUser) {
                         //toast("onRemoveOverlay");
                         stopSelf();
                     }
+                });*/
+                (mic_button, isRemovedByUser) -> {
+                    //toast("onRemoveOverlay");
+                    stopSelf();
                 });
     }
 
@@ -157,12 +160,7 @@ public class create_overlay_mic_button extends Service{
     }
 
     private void toast(String message) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
     }
 
 }

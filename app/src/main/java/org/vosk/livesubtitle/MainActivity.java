@@ -220,12 +220,12 @@ public class MainActivity extends AppCompatActivity {
         arraylist_dst.add("zh-CN");
         arraylist_dst.add("zh-TW");
         arraylist_dst.add("co");
-        arraylist_dst.add("cr");
+        arraylist_dst.add("hr");
         arraylist_dst.add("cs");
         arraylist_dst.add("da");
         arraylist_dst.add("dv");
-        arraylist_dst.add("nl");
         arraylist_dst.add("doi");
+        arraylist_dst.add("nl");
         arraylist_dst.add("en");
         arraylist_dst.add("eo");
         arraylist_dst.add("et");
@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
         arraylist_dst.add("kk");
         arraylist_dst.add("km");
         arraylist_dst.add("rw");
-        arraylist_dst.add("kok");
+        arraylist_dst.add("gom");
         arraylist_dst.add("ko");
         arraylist_dst.add("kri");
         arraylist_dst.add("kmr");
@@ -279,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
         arraylist_dst.add("mt");
         arraylist_dst.add("mi");
         arraylist_dst.add("mr");
-        arraylist_dst.add("mni");
+        arraylist_dst.add("mni-Mtei");
         arraylist_dst.add("lus");
         arraylist_dst.add("mn");
         arraylist_dst.add("my");
@@ -321,9 +321,9 @@ public class MainActivity extends AppCompatActivity {
         arraylist_dst.add("tr");
         arraylist_dst.add("tk");
         arraylist_dst.add("tw");
-        arraylist_dst.add("ug");
         arraylist_dst.add("uk");
         arraylist_dst.add("ur");
+        arraylist_dst.add("ug");
         arraylist_dst.add("uz");
         arraylist_dst.add("vi");
         arraylist_dst.add("cy");
@@ -418,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
         arraylist_dst_languages.add("Myanmar (Burmese)");
         arraylist_dst_languages.add("Nepali");
         arraylist_dst_languages.add("Norwegian");
-        arraylist_dst_languages.add("Oriya");
+        arraylist_dst_languages.add("Odiya (Oriya)");
         arraylist_dst_languages.add("Oromo");
         arraylist_dst_languages.add("Pashto");
         arraylist_dst_languages.add("Persian");
@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
         arraylist_dst_languages.add("Sesotho");
         arraylist_dst_languages.add("Shona");
         arraylist_dst_languages.add("Sindhi");
-        arraylist_dst_languages.add("Sinhalese");
+        arraylist_dst_languages.add("Sinhala");
         arraylist_dst_languages.add("Slovak");
         arraylist_dst_languages.add("Slovenian");
         arraylist_dst_languages.add("Somali");
@@ -453,7 +453,7 @@ public class MainActivity extends AppCompatActivity {
         arraylist_dst_languages.add("Tsonga");
         arraylist_dst_languages.add("Turkish");
         arraylist_dst_languages.add("Turkmen");
-        arraylist_dst_languages.add("Twi");
+        arraylist_dst_languages.add("Twi (Akan)");
         arraylist_dst_languages.add("Ukrainian");
         arraylist_dst_languages.add("Urdu");
         arraylist_dst_languages.add("Uyghur");
@@ -528,7 +528,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         int h;
-        if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-Hans") || Objects.equals(LANGUAGE.DST, "zh-Hant")) {
+        if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-CN") || Objects.equals(LANGUAGE.DST, "zh-TW")) {
             h = 75;
         }
         else {
@@ -560,7 +560,7 @@ public class MainActivity extends AppCompatActivity {
                 check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
 
                 int h;
-                if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-Hans") || Objects.equals(LANGUAGE.DST, "zh-Hant")) {
+                if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-CN") || Objects.equals(LANGUAGE.DST, "zh-TW")) {
                     h = 75;
                 }
                 else {
@@ -628,7 +628,7 @@ public class MainActivity extends AppCompatActivity {
                 textview_dst.setText(LANGUAGE.DST);
 
                 int h;
-                if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-Hans") || Objects.equals(LANGUAGE.DST, "zh-Hant")) {
+                if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-CN") || Objects.equals(LANGUAGE.DST, "zh-TW")) {
                     h = 75;
                 }
                 else {
@@ -693,14 +693,8 @@ public class MainActivity extends AppCompatActivity {
                 mProgressBar.setVisibility(View.VISIBLE);
                 textview_filesize.setVisibility(View.VISIBLE);
                 textview_bytesdownloaded.setVisibility(View.VISIBLE);
-
                 //new DownloadFileFromURL().execute(VOSK_MODEL.URL_ADDRESS);
-
-                new Thread(new Runnable() {
-                    public void run() {
-                        DownloadModel(VOSK_MODEL.URL_ADDRESS);
-                    }
-                }).start();
+                new Thread(() -> DownloadModel(VOSK_MODEL.URL_ADDRESS)).start();
             }
         });
 
