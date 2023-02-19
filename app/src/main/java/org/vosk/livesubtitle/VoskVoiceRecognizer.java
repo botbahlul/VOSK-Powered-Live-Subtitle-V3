@@ -6,15 +6,19 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.os.Message;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.vosk.LibVosk;
 import org.vosk.LogLevel;
 import org.vosk.Model;
@@ -24,15 +28,20 @@ import org.vosk.android.SpeechService;
 import org.vosk.android.SpeechStreamService;
 import org.vosk.android.StorageService;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class VoskVoiceRecognizer extends Service implements RecognitionListener {
-    public VoskVoiceRecognizer() {
-    }
+    public VoskVoiceRecognizer() {}
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -44,13 +53,14 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
     private SpeechService speechService;
     private SpeechStreamService speechStreamService;
     private String results;
-
+    Timer timer = new Timer();
+    TimerTask timerTask;
     /*android.text.TextWatcher tw = new android.text.TextWatcher() {
         public void afterTextChanged(android.text.Editable s) {}
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            translate_api translate = new translate_api();
-            if (RECOGNIZING_STATUS.RECOGNIZING) {
+            GoogleTranslator translate = new GoogleTranslator();
+            if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
                 if (MainActivity.voice_text != null) {
                     //get_translation(MainActivity.voice_text.getText(), LANGUAGE.SRC, LANGUAGE.DST);
                     if (MainActivity.voice_text.length() > 0) {
@@ -66,7 +76,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
                         create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
                     }
                 }
-                translate.setOnTranslationCompleteListener(new translate_api.OnTranslationCompleteListener() {
+                translate.setOnTranslationCompleteListener(new GoogleTranslator.OnTranslationCompleteListener() {
                     @Override
                     public void onStartTranslation() {}
 
@@ -120,25 +130,31 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             initDownloadedModel();
         }
 
-        if (RECOGNIZING_STATUS.RECOGNIZING) {
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
+        if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
+            timer = new Timer();
+            timerTask = new TimerTask() {
                 @Override
                 public void run() {
                     if (VOICE_TEXT.STRING != null) {
-                        translate(VOICE_TEXT.STRING, LANGUAGE.SRC, LANGUAGE.DST);
+                        //translate(VOICE_TEXT.STRING, LANGUAGE.SRC, LANGUAGE.DST);
+                        GoogleTranslate(VOICE_TEXT.STRING, LANGUAGE.SRC, LANGUAGE.DST);
                     }
                 }
-            },0,1000);
+            };
+            timer.schedule(timerTask,0,1000);
+        }
+        else {
+            timerTask.cancel();
+            timer.cancel();
+            timer.purge();
         }
     }
 
     private void initModel() {
         StorageService.unpack(this, VOSK_MODEL.ISO_CODE, "model", (model) -> {
-                    this.model = model;
-                    recognizeMicrophone();
-                },
-                (exception) -> setErrorState("Failed to unpack the model" + exception.getMessage()));
+            this.model = model;
+            recognizeMicrophone();
+        }, (exception) -> setErrorState("Failed to unpack the model" + exception.getMessage()));
     }
 
     private void initDownloadedModel() {
@@ -147,9 +163,9 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             recognizeMicrophone();
         } else {
             if (create_overlay_mic_button.mic_button != null) create_overlay_mic_button.mic_button.setImageResource(R.drawable.ic_mic_black_off);
-            RECOGNIZING_STATUS.RECOGNIZING = false;
-            String string_recognizing = "recognizing=" + RECOGNIZING_STATUS.RECOGNIZING;
-            MainActivity.textview_recognizing.setText(string_recognizing);
+            RECOGNIZING_STATUS.IS_RECOGNIZING = false;
+            RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
+            MainActivity.textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
             String hints = "Recognized words";
             MainActivity.voice_text.setHint(hints);
             stopSelf();
@@ -171,6 +187,9 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             speechStreamService.stop();
             speechStreamService = null;
         }
+        timerTask.cancel();
+        timer.cancel();
+        timer.purge();
     }
 
     @Override
@@ -183,7 +202,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
                     .replace("partial", ""))
                     .replace("\"", "");
         }
-        if (RECOGNIZING_STATUS.RECOGNIZING) {
+        if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
             VOICE_TEXT.STRING = results.toLowerCase(Locale.forLanguageTag(LANGUAGE.SRC));
             MainActivity.voice_text.setText(VOICE_TEXT.STRING);
             MainActivity.voice_text.setSelection(MainActivity.voice_text.getText().length());
@@ -204,7 +223,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
                     .replace("partial", ""))
                     .replace("\"", "");
         }
-        if (RECOGNIZING_STATUS.RECOGNIZING) {
+        if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
             VOICE_TEXT.STRING = results.toLowerCase(Locale.forLanguageTag(LANGUAGE.SRC));
             MainActivity.voice_text.setText(VOICE_TEXT.STRING);
             MainActivity.voice_text.setSelection(MainActivity.voice_text.getText().length());
@@ -226,7 +245,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
                     .replace("\"", "");
         }
 
-        if (RECOGNIZING_STATUS.RECOGNIZING) {
+        if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
             VOICE_TEXT.STRING = results.toLowerCase(Locale.forLanguageTag(LANGUAGE.SRC));
             MainActivity.voice_text.setText(VOICE_TEXT.STRING);
             MainActivity.voice_text.setSelection(MainActivity.voice_text.getText().length());
@@ -261,10 +280,10 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
         if (speechService != null) {
             speechService.stop();
             speechService = null;
-            String string_recognizing = "recognizing=" + RECOGNIZING_STATUS.RECOGNIZING;
-            MainActivity.textview_recognizing.setText(string_recognizing);
-            String string_overlaying = "overlaying=" + OVERLAYING_STATUS.OVERLAYING;
-            MainActivity.textview_overlaying.setText(string_overlaying);
+            RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
+            MainActivity.textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+            OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
+            MainActivity.textview_overlaying.setText(OVERLAYING_STATUS.STRING);
         } else {
             MainActivity.textview_debug.setText("");
             try {
@@ -277,16 +296,91 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
         }
     }
 
-    public void translate(String t, String src, String dst) {
-        translate_api translate = new translate_api();
-        translate.setOnTranslationCompleteListener(new translate_api.OnTranslationCompleteListener() {
+    public void setText(final TextView tv, final String text){
+        new Handler(Looper.getMainLooper()).post(() -> tv.setText(text));
+    }
+
+    private void GoogleTranslate(String SENTENCE, String SRC, String DST) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+        AtomicReference<String> TRANSLATION = new AtomicReference<>("");
+        try {
+            SENTENCE = URLEncoder.encode(SENTENCE, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        String finalSENTENCE = SENTENCE;
+        executor.execute(() -> {
+            try {
+                String url = "https://translate.googleapis.com/translate_a/";
+                String params = "single?client=gtx&sl=" + SRC + "&tl=" + DST + "&dt=t&q=" + finalSENTENCE;
+                HttpResponse response = new DefaultHttpClient().execute(new HttpGet(url+params));
+                StatusLine statusLine = response.getStatusLine();
+                if (statusLine.getStatusCode() == 200) {
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    response.getEntity().writeTo(byteArrayOutputStream);
+                    String stringOfByteArrayOutputStream = byteArrayOutputStream.toString();
+                    byteArrayOutputStream.close();
+                    JSONArray jSONArray = new JSONArray(stringOfByteArrayOutputStream).getJSONArray(0);
+                    for (int i = 0; i < jSONArray.length(); i++) {
+                        JSONArray jSONArray2 = jSONArray.getJSONArray(i);
+                        TRANSLATION.set(TRANSLATION + jSONArray2.get(0).toString());
+                    }
+
+                }
+                else {
+                    response.getEntity().getContent().close();
+                    throw new IOException(statusLine.getReasonPhrase());
+                }
+            } catch (Exception e) {
+                Log.e("GoogleTranslator",e.getMessage());
+                e.printStackTrace();
+            }
+
+            handler.post(() -> {
+                TRANSLATION_TEXT.STRING = TRANSLATION.toString();
+                if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
+                    if (TRANSLATION_TEXT.STRING.length() == 0) {
+                        create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
+                        create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
+                    } else {
+                        create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
+                        create_overlay_translation_text.overlay_translation_text_container.setBackgroundColor(Color.TRANSPARENT);
+                        create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
+                        create_overlay_translation_text.overlay_translation_text.setBackgroundColor(Color.TRANSPARENT);
+                        create_overlay_translation_text.overlay_translation_text.setTextIsSelectable(true);
+                        create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
+                        create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
+                        Spannable spannableString = new SpannableStringBuilder(TRANSLATION_TEXT.STRING);
+                        spannableString.setSpan(new ForegroundColorSpan(Color.YELLOW),
+                                0,
+                                create_overlay_translation_text.overlay_translation_text.getSelectionEnd(),
+                                0);
+                        spannableString.setSpan(new BackgroundColorSpan(Color.parseColor("#80000000")),
+                                0,
+                                create_overlay_translation_text.overlay_translation_text.getSelectionEnd(),
+                                0);
+                        create_overlay_translation_text.overlay_translation_text.setText(spannableString);
+                        create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
+                    }
+                } else {
+                    create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
+                    create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
+                }
+            });
+        });
+    }
+
+    /*public void gtranslate1(String t, String src, String dst) {
+        GoogleTranslator translate = new GoogleTranslator();
+        translate.setOnTranslationCompleteListener(new GoogleTranslator.OnTranslationCompleteListener() {
             @Override
             public void onStartTranslation() {}
 
             @Override
             public void onCompleted(String text) {
                 TRANSLATION_TEXT.STRING = text;
-                if (RECOGNIZING_STATUS.RECOGNIZING) {
+                if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
                     if (TRANSLATION_TEXT.STRING.length() == 0) {
                         create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
                         create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
@@ -323,18 +417,18 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             }
         });
         translate.execute(t, src, dst);
-    }
+    }*/
 
-    public void gtranslate(String t, String src, String dst) {
-        google_translate translate = new google_translate();
-        translate.setOnTranslationCompleteListener(new google_translate.OnTranslationCompleteListener() {
+    /*public void gtranslate2(String t, String src, String dst) {
+        GoogleTranslatorClient5 translate = new GoogleTranslatorClient5();
+        translate.setOnTranslationCompleteListener(new GoogleTranslatorClient5.OnTranslationCompleteListener() {
             @Override
             public void onStartTranslation() {}
 
             @Override
             public void onCompleted(String translation) {
                 TRANSLATION_TEXT.STRING = translation;
-                if (RECOGNIZING_STATUS.RECOGNIZING) {
+                if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
                     if (TRANSLATION_TEXT.STRING.length() == 0) {
                         create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
                         create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
@@ -357,26 +451,10 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             }
         });
         translate.execute(t, src, dst);
-    }
+    }*/
 
-    private void toast(String message) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    public void setText(final TextView tv, final String text){
-        Handler handler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                // Any UI task, example
-                tv.setText(text);
-            }
-        };
-        handler.sendEmptyMessage(1);
-    }
+    /*private void toast(String message) {
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
+    }*/
 
 }

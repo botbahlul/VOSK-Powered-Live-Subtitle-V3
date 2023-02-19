@@ -1,27 +1,14 @@
-<!--?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/center"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.5"/-->
-
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
+    android:orientation="vertical"
+    android:padding="1dp"
+    android:fillViewport="false"
+    android:layout_gravity="center_horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="5dp"
     android:layout_marginRight="5dp"
-    android:layout_gravity="center"
-    android:orientation="vertical"
-    android:padding="1dp"
-    android:fillViewport="false"
     >
     <TableLayout
         android:layout_width="match_parent"
@@ -32,52 +19,76 @@
         android:paddingBottom="1dp"
         tools:context=".MainActivity"
         >
-        <TextView
-            android:id="@+id/textview_text1"
-            android:textAlignment="gravity"
-            android:gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:text="@string/voice_language"
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="12sp"
             />
-        <Spinner
-            android:id="@+id/spinner_src_languages"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:contentDescription="@string/spinner_src_languages"
-            android:backgroundTint="@color/colorPrimary"
-            android:gravity="center"
-            android:minHeight="48dp"
-            android:spinnerMode="dropdown"
+        <CheckBox
+            android:id="@+id/checkbox_debug_mode"
+            android:text="Debug mode"
+            android:minHeight="32dp"
+            android:padding="0dp"
+            android:gravity="start|center"
             android:textAlignment="gravity"
+            android:textSize="16sp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="0dp"
+            android:checked="false"
             />
+        <TableRow>
+            <TextView
+                android:id="@+id/textview_text1"
+                android:textAlignment="gravity"
+                android:gravity="start"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textSize="16sp"
+                android:text="@string/voice_language"
+                />
+            <Spinner
+                android:id="@+id/spinner_src_languages"
+                android:layout_width="210dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:contentDescription="@string/spinner_src_languages"
+                android:backgroundTint="@color/colorPrimary"
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:spinnerMode="dropdown"
+                android:textAlignment="gravity"
+                />
+        </TableRow>
         <TextView
             android:id="@+id/textview_src"
             android:textAlignment="gravity"
             android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="12sp"
             />
         <Button
             android:id="@+id/button_delete_model"
+            android:text="@string/delete_model"
+            android:textSize="16sp"
+            android:visibility="invisible"
             android:layout_marginLeft="100dp"
             android:layout_marginRight="100dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:text="@string/delete_model"
-            android:visibility="invisible"
             />
         <Button
             android:id="@+id/button_download_model"
+            android:text="@string/download_model"
+            android:textSize="16sp"
+            android:visibility="invisible"
             android:layout_marginLeft="100dp"
             android:layout_marginRight="100dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:text="@string/download_model"
-            android:visibility="invisible"
             />
         <ProgressBar
             android:id="@+id/mProgressBar"
@@ -146,9 +157,10 @@
         <EditText
             android:id="@+id/voice_text"
             android:layout_width="match_parent"
-            android:layout_height="124dp"
+            android:layout_height="120dp"
             android:autofillHints=""
-            android:gravity="center"
+            android:background="@android:drawable/editbox_background"
+            android:gravity="start"
             android:focusable="false"
             android:focusableInTouchMode="true"
             android:hint="@string/recognized_words"
@@ -162,34 +174,36 @@
             android:layout_width="match_parent"
             android:layout_height="12sp"
             />
-        <TextView
-            android:id="@+id/textview_text2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/translation_language"
-            android:textAlignment="gravity"
-            android:textSize="18sp"
-            />
-        <Spinner
-            android:id="@+id/spinner_dst_languages"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:contentDescription="@string/spinner_dst_languages"
-            android:backgroundTint="@color/colorPrimary"
-            android:gravity="center"
-            android:minHeight="48dp"
-            android:spinnerMode="dropdown"
-            android:textAlignment="gravity"
-            />
+        <TableRow>
+            <TextView
+                android:id="@+id/textview_text2"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:gravity="start"
+                android:text="@string/translation_language"
+                android:textAlignment="gravity"
+                android:textSize="16sp"
+                />
+            <Spinner
+                android:id="@+id/spinner_dst_languages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:contentDescription="@string/spinner_dst_languages"
+                android:backgroundTint="@color/colorPrimary"
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:spinnerMode="dropdown"
+                android:textAlignment="gravity"
+                />
+        </TableRow>
         <TextView
             android:id="@+id/textview_dst"
             android:textAlignment="gravity"
             android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="12sp"
             />
         <View
             android:layout_width="match_parent"
@@ -197,11 +211,12 @@
             />
         <Button
             android:id="@+id/button_toggle_overlay"
+            android:text="@string/toggle_overlay"
+            android:textSize="16sp"
             android:layout_marginLeft="100dp"
             android:layout_marginRight="100dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:text="@string/toggle_overlay"
             />
         <View
             android:layout_width="match_parent"
@@ -214,7 +229,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text=""
-            android:textSize="14sp"
+            android:textSize="12sp"
             />
         <TextView
             android:id="@+id/textview_overlaying"
@@ -222,13 +237,13 @@
             android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="12sp"
             />
         <TextView
             android:id="@+id/textview_debug"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:layout_gravity="center"
             android:gravity="center"
             android:scrollbars="vertical"
@@ -238,7 +253,7 @@
             android:id="@+id/textview_debug2"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:layout_gravity="center"
             android:gravity="center"
             android:scrollbars="vertical"
@@ -246,4 +261,3 @@
             />
     </TableLayout>
 </ScrollView>
-<!--/androidx.constraintlayout.widget.ConstraintLayout-->

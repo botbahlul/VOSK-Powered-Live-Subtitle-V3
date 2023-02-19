@@ -5,13 +5,10 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import java.util.Objects;
 
@@ -60,7 +57,7 @@ public class create_overlay_translation_text extends Service {
         overlay_translation_text.setBackgroundColor(Color.parseColor("#80000000"));
         overlay_translation_text.setTextColor(Color.YELLOW);
         overlay_translation_text.setVisibility(View.INVISIBLE);
-        if (RECOGNIZING_STATUS.RECOGNIZING) {
+        if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
             if (TRANSLATION_TEXT.STRING.length() == 0) {
                 overlay_translation_text.setVisibility(View.INVISIBLE);
                 overlay_translation_text_container.setVisibility(View.INVISIBLE);
@@ -84,35 +81,21 @@ public class create_overlay_translation_text extends Service {
                 (int) (h * getResources().getDisplayMetrics().density),
                 0,
                 (int) (0.3* DISPLAY_METRIC.DISPLAY_HEIGHT),
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //toast("onClick");
-                    }
+                v -> {
+                    //toast("onClick");
                 },
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        //toast("onLongClick not implemented yet");
-                        return false;
-                    }
+                v -> {
+                    //toast("onLongClick not implemented yet");
+                    return false;
                 },
-                new GlobalOverlay.OnRemoveOverlayListener() {
-                    @Override
-                    public void onRemoveOverlay(View view, boolean isRemovedByUser) {
-                        //toast("onRemoveOverlay");
-                        stopSelf();
-                    }
+                (view, isRemovedByUser) -> {
+                    //toast("onRemoveOverlay");
+                    stopSelf();
                 });
     }
 
-    private void toast(String message) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+    /*private void toast(String message) {
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
+    }*/
 
 }

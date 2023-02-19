@@ -10,8 +10,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -21,6 +24,8 @@ import android.util.DisplayMetrics;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -48,12 +53,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
     public static AudioManager audio;
     public static int mStreamVolume;
+
     private final ArrayList<String> arraylist_models = new ArrayList<>();
     private final ArrayList<String> arraylist_models_URL = new ArrayList<>();
     private final ArrayList<String> arraylist_src = new ArrayList<>();
@@ -64,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     private final Map<String, String> map_src_country = new HashMap<>();
     private final Map<String, String> map_dst_country = new HashMap<>();
     private final Map<String, String> map_country_models_URL = new HashMap<>();
+
+    private CheckBox checkbox_debug_mode;
     private Spinner spinner_src_languages;
     private Button button_delete_model;
     private Button button_download_model;
@@ -469,6 +478,7 @@ public class MainActivity extends AppCompatActivity {
             map_dst_country.put(arraylist_dst_languages.get(i), arraylist_dst.get(i));
         }
 
+        checkbox_debug_mode = findViewById(R.id.checkbox_debug_mode);
         spinner_src_languages = findViewById(R.id.spinner_src_languages);
         setup_src_spinner(arraylist_src_languages);
         button_delete_model = findViewById(R.id.button_delete_model);
@@ -494,6 +504,24 @@ public class MainActivity extends AppCompatActivity {
         audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mStreamVolume = audio.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
 
+        RECOGNIZING_STATUS.IS_RECOGNIZING = false;
+        RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
+        textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+        OVERLAYING_STATUS.IS_OVERLAYING = false;
+        OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
+        textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+
+        audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        mStreamVolume = audio.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
+
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager.isNotificationPolicyAccessGranted()) {
+            audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int) Double.parseDouble(String.valueOf((long) (MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
+        }
+        else {
+            startActivity(new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
+        }
+
         VOICE_TEXT.STRING = "";
         TRANSLATION_TEXT.STRING = "";
 
@@ -504,29 +532,6 @@ public class MainActivity extends AppCompatActivity {
         DISPLAY_METRIC.DISPLAY_HEIGHT = display.heightPixels;
         DISPLAY_METRIC.DISPLAY_DENSITY = d;
 
-        RECOGNIZING_STATUS.RECOGNIZING = false;
-        String string_recognizing = "recognizing=" + RECOGNIZING_STATUS.RECOGNIZING;
-        textview_recognizing.setText(string_recognizing);
-
-        OVERLAYING_STATUS.OVERLAYING = false;
-        String string_overlaying = "overlaying=" + OVERLAYING_STATUS.OVERLAYING;
-        textview_overlaying.setText(string_overlaying);
-
-        VOSK_MODEL.DOWNLOADED = false;
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-            getSupportActionBar().setCustomView(R.layout.actionbar_layout);
-        }
-
-        checkRecordAudioPermission();
-
-        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (!notificationManager.isNotificationPolicyAccessGranted()) {
-            Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-            startActivity(intent);
-        }
-
         int h;
         if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-CN") || Objects.equals(LANGUAGE.DST, "zh-TW")) {
             h = 75;
@@ -536,24 +541,180 @@ public class MainActivity extends AppCompatActivity {
         }
         voice_text.setHeight((int) (h * getResources().getDisplayMetrics().density));
 
+        RECOGNIZING_STATUS.IS_RECOGNIZING = false;
+        String string_recognizing = "recognizing=" + RECOGNIZING_STATUS.IS_RECOGNIZING;
+        textview_recognizing.setText(string_recognizing);
+
+        OVERLAYING_STATUS.IS_OVERLAYING = false;
+        String string_overlaying = "overlaying=" + OVERLAYING_STATUS.IS_OVERLAYING;
+        textview_overlaying.setText(string_overlaying);
+
+        VOSK_MODEL.DOWNLOADED = false;
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            getSupportActionBar().setCustomView(R.layout.actionbar_layout);
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+        }
+
+        if(checkbox_debug_mode.isChecked()){
+            textview_src.setVisibility(View.VISIBLE);
+            textview_dst.setVisibility(View.VISIBLE);
+            textview_recognizing.setVisibility(View.VISIBLE);
+            textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+            textview_overlaying.setVisibility(View.VISIBLE);
+            textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+            textview_debug.setVisibility(View.VISIBLE);
+            textview_debug2.setVisibility(View.VISIBLE);
+            textview_downloaded_status.setVisibility(View.VISIBLE);
+            if (LANGUAGE.SRC != null) {
+                String ls  = "LANGUAGE.SRC = " + LANGUAGE.SRC;
+                textview_src.setText(ls);
+            }
+            else {
+                textview_src.setHint("LANGUAGE.SRC");
+            }
+            if (LANGUAGE.DST != null) {
+                String ld = "LANGUAGE.DST = " + LANGUAGE.DST;
+                textview_dst.setText(ld);
+            }
+            else {
+                textview_src.setHint("LANGUAGE.SRC");
+            }
+            if (!Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
+                if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
+                    textview_model_used_path.setVisibility(View.VISIBLE);
+                    String downloaded_status = "VOSK model has been downloaded";
+                    textview_downloaded_status.setText(downloaded_status);
+                    textview_model_used_path.setVisibility(View.VISIBLE);
+                    String string_model_used_path = "VOSK model used path=" + VOSK_MODEL.USED_PATH;
+                    textview_model_used_path.setText(string_model_used_path);
+                    String msg = "VOSK model is ready to use";
+                    textview_debug.setText(msg);
+                }
+                else {
+                    textview_model_URL.setVisibility(View.VISIBLE);
+                    textview_model_zip_file.setVisibility(View.VISIBLE);
+                    textview_filesize.setVisibility(View.VISIBLE);
+                    textview_bytesdownloaded.setVisibility(View.VISIBLE);
+                    String msg = "VOSK model has not been downloaded yet";
+                    textview_debug.setText(msg);
+                }
+            }
+        }
+        else {
+            textview_src.setVisibility(View.GONE);
+            textview_dst.setVisibility(View.GONE);
+            textview_recognizing.setVisibility(View.GONE);
+            textview_overlaying.setVisibility(View.GONE);
+            textview_debug.setVisibility(View.GONE);
+            textview_debug2.setVisibility(View.GONE);
+            textview_model_used_path.setVisibility(View.GONE);
+            textview_downloaded_status.setVisibility(View.GONE);
+            if (!Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
+                if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
+                    textview_model_used_path.setVisibility(View.GONE);
+                } else {
+                    textview_model_URL.setVisibility(View.GONE);
+                    textview_model_zip_file.setVisibility(View.GONE);
+                    textview_filesize.setVisibility(View.GONE);
+                    textview_bytesdownloaded.setVisibility(View.GONE);
+                }
+            }
+        }
+
+        checkbox_debug_mode.setOnClickListener(view -> {
+            if(((CompoundButton) view).isChecked()){
+                textview_src.setVisibility(View.VISIBLE);
+                textview_dst.setVisibility(View.VISIBLE);
+                textview_recognizing.setVisibility(View.VISIBLE);
+                textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+                textview_overlaying.setVisibility(View.VISIBLE);
+                textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                textview_debug.setVisibility(View.VISIBLE);
+                textview_debug2.setVisibility(View.VISIBLE);
+                textview_downloaded_status.setVisibility(View.VISIBLE);
+                if (LANGUAGE.SRC != null) {
+                    String ls  = "LANGUAGE.SRC = " + LANGUAGE.SRC;
+                    textview_src.setText(ls);
+                }
+                else {
+                    textview_src.setHint("LANGUAGE.SRC");
+                }
+                if (LANGUAGE.DST != null) {
+                    String ld = "LANGUAGE.DST = " + LANGUAGE.DST;
+                    textview_dst.setText(ld);
+                }
+                else {
+                    textview_src.setHint("LANGUAGE.SRC");
+                }
+                if (!Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
+                    if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
+                        textview_model_used_path.setVisibility(View.VISIBLE);
+                        String downloaded_status = "VOSK model has been downloaded";
+                        textview_downloaded_status.setText(downloaded_status);
+                        textview_model_used_path.setVisibility(View.VISIBLE);
+                        String string_model_used_path = "VOSK model used path=" + VOSK_MODEL.USED_PATH;
+                        textview_model_used_path.setText(string_model_used_path);
+                        String msg = "VOSK model is ready to use";
+                        textview_debug.setText(msg);
+                    }
+                    else {
+                        textview_model_URL.setVisibility(View.VISIBLE);
+                        textview_model_zip_file.setVisibility(View.VISIBLE);
+                        textview_filesize.setVisibility(View.VISIBLE);
+                        textview_bytesdownloaded.setVisibility(View.VISIBLE);
+                        String msg = "VOSK model has not been downloaded yet";
+                        textview_debug.setText(msg);
+                    }
+                }
+            }
+            else {
+                textview_src.setVisibility(View.GONE);
+                textview_dst.setVisibility(View.GONE);
+                textview_recognizing.setVisibility(View.GONE);
+                textview_overlaying.setVisibility(View.GONE);
+                textview_debug.setVisibility(View.GONE);
+                textview_debug2.setVisibility(View.GONE);
+                textview_model_used_path.setVisibility(View.GONE);
+                textview_downloaded_status.setVisibility(View.GONE);
+                if (!Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
+                    if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
+                        textview_model_used_path.setVisibility(View.GONE);
+                    } else {
+                        textview_model_URL.setVisibility(View.GONE);
+                        textview_model_zip_file.setVisibility(View.GONE);
+                        textview_filesize.setVisibility(View.GONE);
+                        textview_bytesdownloaded.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+
         spinner_src_languages.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String src_country = spinner_src_languages.getSelectedItem().toString();
-                LANGUAGE.SRC = map_src_country.get(src_country);
-                textview_src.setText(LANGUAGE.SRC);
+                LANGUAGE.SRC_COUNTRY = spinner_src_languages.getSelectedItem().toString();
+                LANGUAGE.SRC = map_src_country.get(LANGUAGE.SRC_COUNTRY);
+                String string_src = "LANGUAGE.SRC = " + LANGUAGE.SRC;
+                textview_src.setText(string_src);
 
-                String dst_country = spinner_dst_languages.getSelectedItem().toString();
-                LANGUAGE.DST = map_dst_country.get(dst_country);
-                textview_dst.setText(LANGUAGE.DST);
+                LANGUAGE.DST_COUNTRY = spinner_dst_languages.getSelectedItem().toString();
+                LANGUAGE.DST = map_dst_country.get(LANGUAGE.DST_COUNTRY);
+                String string_dst = "LANGUAGE.DST = " + LANGUAGE.DST;
+                textview_dst.setText(string_dst);
 
-                VOSK_MODEL.ISO_CODE = map_model_country.get(src_country);
-                VOSK_MODEL.URL_ADDRESS = map_country_models_URL.get(src_country);
+                VOSK_MODEL.ISO_CODE = map_model_country.get(LANGUAGE.SRC_COUNTRY);
+                VOSK_MODEL.URL_ADDRESS = map_country_models_URL.get(LANGUAGE.SRC_COUNTRY);
                 if (VOSK_MODEL.URL_ADDRESS != null) {
                     VOSK_MODEL.ZIP_FILENAME = substring(VOSK_MODEL.URL_ADDRESS, VOSK_MODEL.URL_ADDRESS.lastIndexOf('/') + 1, VOSK_MODEL.URL_ADDRESS.length());
                 }
                 VOSK_MODEL.ZIP_FILE_COMPLETE_PATH = getExternalFilesDir(null).getAbsolutePath() + "/" + VOSK_MODEL.ZIP_FILENAME;
                 VOSK_MODEL.EXTRACTED_PATH = getExternalFilesDir(null).getAbsolutePath() + "/" + "downloaded" + "/";
-                String string_url = "Model URL = " + VOSK_MODEL.URL_ADDRESS;
+
+                String string_url = "VOSK model URL = " + VOSK_MODEL.URL_ADDRESS;
                 textview_model_URL.setText(string_url);
                 String string_zip_path = "Save as = " + VOSK_MODEL.ZIP_FILE_COMPLETE_PATH;
                 textview_model_zip_file.setText(string_zip_path);
@@ -571,8 +732,9 @@ public class MainActivity extends AppCompatActivity {
                 stop_vosk_voice_recognizer();
                 stop_create_overlay_translation_text();
                 stop_create_overlay_mic_button();
-                if (OVERLAYING_STATUS.OVERLAYING) {
-                    if (!RECOGNIZING_STATUS.RECOGNIZING) {
+
+                if (OVERLAYING_STATUS.IS_OVERLAYING) {
+                    if (!RECOGNIZING_STATUS.IS_RECOGNIZING) {
                         if (create_overlay_mic_button.mic_button != null) create_overlay_mic_button.mic_button.setImageResource(R.drawable.ic_mic_black_off);
                     } else {
                         start_vosk_voice_recognizer();
@@ -586,30 +748,29 @@ public class MainActivity extends AppCompatActivity {
                         if (create_overlay_translation_text.overlay_translation_text != null) create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
                     }
                 }
-
-                String string_recognizing = "recognizing=" + RECOGNIZING_STATUS.RECOGNIZING;
-                textview_recognizing.setText(string_recognizing);
-                String string_overlaying =  "overlaying=" + OVERLAYING_STATUS.OVERLAYING;
-                textview_overlaying.setText(string_overlaying);
+                textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+                textview_overlaying.setText(OVERLAYING_STATUS.STRING);
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
-                String src_country = spinner_src_languages.getSelectedItem().toString();
-                LANGUAGE.SRC = map_src_country.get(src_country);
-                textview_src.setText(LANGUAGE.SRC);
+                LANGUAGE.SRC_COUNTRY = spinner_src_languages.getSelectedItem().toString();
+                LANGUAGE.SRC = map_src_country.get(LANGUAGE.SRC_COUNTRY);
+                String string_src = "LANGUAGE.SRC = " + LANGUAGE.SRC;
+                textview_src.setText(string_src);
 
-                String dst_country = spinner_dst_languages.getSelectedItem().toString();
-                LANGUAGE.DST = map_dst_country.get(dst_country);
-                textview_dst.setText(LANGUAGE.DST);
+                LANGUAGE.DST_COUNTRY = spinner_dst_languages.getSelectedItem().toString();
+                LANGUAGE.DST = map_dst_country.get(LANGUAGE.DST_COUNTRY);
+                String string_dst = "LANGUAGE.DST = " + LANGUAGE.DST;
+                textview_dst.setText(string_dst);
 
-                VOSK_MODEL.ISO_CODE = map_model_country.get(src_country);
-                VOSK_MODEL.URL_ADDRESS = map_country_models_URL.get(src_country);
+                VOSK_MODEL.ISO_CODE = map_model_country.get(LANGUAGE.SRC_COUNTRY);
+                VOSK_MODEL.URL_ADDRESS = map_country_models_URL.get(LANGUAGE.SRC_COUNTRY);
                 if (VOSK_MODEL.URL_ADDRESS != null) {
                     VOSK_MODEL.ZIP_FILENAME = substring(VOSK_MODEL.URL_ADDRESS, VOSK_MODEL.URL_ADDRESS.lastIndexOf('/') + 1, VOSK_MODEL.URL_ADDRESS.length());
                 }
                 VOSK_MODEL.ZIP_FILE_COMPLETE_PATH = getExternalFilesDir(null).getAbsolutePath() + "/" + VOSK_MODEL.ZIP_FILENAME;
                 VOSK_MODEL.EXTRACTED_PATH = getExternalFilesDir(null).getAbsolutePath() + "/" + "downloaded" + "/";
-                String string_url = "Model URL = " + VOSK_MODEL.URL_ADDRESS;
+                String string_url = "VOSK model URL = " + VOSK_MODEL.URL_ADDRESS;
                 textview_model_URL.setText(string_url);
                 String string_zip_path = "Save as = " + VOSK_MODEL.ZIP_FILE_COMPLETE_PATH;
                 textview_model_zip_file.setText(string_zip_path);
@@ -619,13 +780,15 @@ public class MainActivity extends AppCompatActivity {
 
         spinner_dst_languages.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String src_country = spinner_src_languages.getSelectedItem().toString();
-                LANGUAGE.SRC = map_src_country.get(src_country);
-                textview_src.setText(LANGUAGE.SRC);
+                LANGUAGE.SRC_COUNTRY = spinner_src_languages.getSelectedItem().toString();
+                LANGUAGE.SRC = map_src_country.get(LANGUAGE.SRC_COUNTRY);
+                String string_src = "LANGUAGE.SRC = " + LANGUAGE.SRC;
+                textview_src.setText(string_src);
 
-                String dst_country = spinner_dst_languages.getSelectedItem().toString();
-                LANGUAGE.DST = map_dst_country.get(dst_country);
-                textview_dst.setText(LANGUAGE.DST);
+                LANGUAGE.DST_COUNTRY = spinner_dst_languages.getSelectedItem().toString();
+                LANGUAGE.DST = map_dst_country.get(LANGUAGE.DST_COUNTRY);
+                String string_dst = "LANGUAGE.DST = " + LANGUAGE.DST;
+                textview_dst.setText(string_dst);
 
                 int h;
                 if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-CN") || Objects.equals(LANGUAGE.DST, "zh-TW")) {
@@ -639,8 +802,9 @@ public class MainActivity extends AppCompatActivity {
                 stop_vosk_voice_recognizer();
                 stop_create_overlay_translation_text();
                 stop_create_overlay_mic_button();
-                if (OVERLAYING_STATUS.OVERLAYING) {
-                    if (!RECOGNIZING_STATUS.RECOGNIZING) {
+
+                if (OVERLAYING_STATUS.IS_OVERLAYING) {
+                    if (!RECOGNIZING_STATUS.IS_RECOGNIZING) {
                         if (create_overlay_mic_button.mic_button != null) create_overlay_mic_button.mic_button.setImageResource(R.drawable.ic_mic_black_off);
                     } else {
                         start_vosk_voice_recognizer();
@@ -654,21 +818,20 @@ public class MainActivity extends AppCompatActivity {
                         if (create_overlay_translation_text.overlay_translation_text != null) create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
                     }
                 }
-
-                String string_recognizing = "recognizing=" + RECOGNIZING_STATUS.RECOGNIZING;
-                textview_recognizing.setText(string_recognizing);
-                String string_overlaying =  "overlaying=" + OVERLAYING_STATUS.OVERLAYING;
-                textview_overlaying.setText(string_overlaying);
+                textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+                textview_overlaying.setText(OVERLAYING_STATUS.STRING);
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
-                String src_country = spinner_src_languages.getSelectedItem().toString();
-                LANGUAGE.SRC = map_src_country.get(src_country);
-                textview_src.setText(LANGUAGE.SRC);
+                LANGUAGE.SRC_COUNTRY = spinner_src_languages.getSelectedItem().toString();
+                LANGUAGE.SRC = map_src_country.get(LANGUAGE.SRC_COUNTRY);
+                String string_src = "LANGUAGE.SRC = " + LANGUAGE.SRC;
+                textview_src.setText(string_src);
 
-                String dst_country = spinner_dst_languages.getSelectedItem().toString();
-                LANGUAGE.DST = map_dst_country.get(dst_country);
-                textview_dst.setText(LANGUAGE.DST);
+                LANGUAGE.DST_COUNTRY = spinner_dst_languages.getSelectedItem().toString();
+                LANGUAGE.DST = map_dst_country.get(LANGUAGE.DST_COUNTRY);
+                String string_dst = "LANGUAGE.DST = " + LANGUAGE.DST;
+                textview_dst.setText(string_dst);
             }
         });
 
@@ -684,6 +847,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         button_download_model.setOnClickListener(v -> {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Environment.isExternalStorageLegacy()) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Uri uri = Uri.parse("package:" + MainActivity.this.getPackageName());
+                    startActivity(new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, uri));
+                }
+            } else {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                }
+            }
+
             if (!VOSK_MODEL.DOWNLOADED) {
                 File edir = new File(getApplicationContext().getExternalFilesDir(null), "downloaded");
                 if (!(edir.exists())) {
@@ -699,29 +873,51 @@ public class MainActivity extends AppCompatActivity {
         });
 
         button_toggle_overlay.setOnClickListener(v -> {
-            checkDrawOverlayPermission();
-            OVERLAYING_STATUS.OVERLAYING = !OVERLAYING_STATUS.OVERLAYING;
-            String string_overlaying1 = "overlaying=" + OVERLAYING_STATUS.OVERLAYING;
-            textview_overlaying.setText(string_overlaying1);
-            if (OVERLAYING_STATUS.OVERLAYING) {
-                start_create_overlay_mic_button();
-                start_create_overlay_translation_text();
+            OVERLAYING_STATUS.IS_OVERLAYING = !OVERLAYING_STATUS.IS_OVERLAYING;
+            OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
+            textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+
+            if (OVERLAYING_STATUS.IS_OVERLAYING) {
+                if (Settings.canDrawOverlays(getApplicationContext())) {
+                    start_create_overlay_mic_button();
+                    start_create_overlay_translation_text();
+                }
+                else {
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    ExecutorService executorService = Executors.newSingleThreadExecutor();
+                    Runnable runnable = () -> startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION));
+                    executorService.execute(runnable);
+                    handler.postDelayed(() -> {
+                        if (Settings.canDrawOverlays(getApplicationContext())) {
+                            start_create_overlay_mic_button();
+                            start_create_overlay_translation_text();
+                            OVERLAYING_STATUS.IS_OVERLAYING = true;
+                            String os = "Overlay permission granted";
+                            textview_debug.setText(os);
+                        }
+                        else {
+                            OVERLAYING_STATUS.IS_OVERLAYING = false;
+                            String os = "Failed to get overlay permission in 15 seconds, please retry to tap TOGGLE OVERLAY button again";
+                            textview_debug.setText(os);
+                        }
+                        OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
+                        textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                    }, 15000);
+                }
+
             } else {
                 stop_vosk_voice_recognizer();
                 stop_create_overlay_translation_text();
                 stop_create_overlay_mic_button();
-                RECOGNIZING_STATUS.RECOGNIZING = false;
-                String string_recognizing1 = "recognizing=" + RECOGNIZING_STATUS.RECOGNIZING;
-                textview_recognizing.setText(string_recognizing1);
-                string_overlaying1 = "overlaying=" + OVERLAYING_STATUS.OVERLAYING;
-                textview_overlaying.setText(string_overlaying1);
+                RECOGNIZING_STATUS.IS_RECOGNIZING = false;
+                textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+                textview_overlaying.setText(OVERLAYING_STATUS.STRING);
                 MainActivity.textview_debug.setText("");
                 VOICE_TEXT.STRING = "";
                 TRANSLATION_TEXT.STRING = "";
                 MainActivity.voice_text.setText("");
                 String hints = "Recognized words";
                 MainActivity.voice_text.setHint(hints);
-                MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int)Double.parseDouble(String.valueOf((long)(MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
                 if (create_overlay_translation_text.overlay_translation_text != null) {
                     create_overlay_translation_text.overlay_translation_text.setText("");
                     create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
@@ -734,10 +930,6 @@ public class MainActivity extends AppCompatActivity {
                 VOICE_TEXT.STRING = "";
                 TRANSLATION_TEXT.STRING = "";
                 MainActivity.voice_text.setText("");
-                string_recognizing1 = "recognizing=" + RECOGNIZING_STATUS.RECOGNIZING;
-                textview_recognizing.setText(string_recognizing1);
-                string_overlaying1 = "overlaying=" + OVERLAYING_STATUS.OVERLAYING;
-                textview_overlaying.setText(string_overlaying1);
                 hints = "Recognized words";
                 MainActivity.voice_text.setHint(hints);
             }
@@ -752,6 +944,14 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        stop_create_overlay_translation_text();
+        stop_create_overlay_mic_button();
+        stop_vosk_voice_recognizer();
+        finish();
     }
 
     @Override
@@ -778,16 +978,16 @@ public class MainActivity extends AppCompatActivity {
         spinner_dst_languages.setSelection(supported_languages.indexOf("Indonesian"));
     }
 
-    private void checkRecordAudioPermission() {
+    /*private void checkRecordAudioPermission() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
-    }
+    }*/
 
-    private void checkDrawOverlayPermission() {
+    /*private void checkDrawOverlayPermission() {
         if (!Settings.canDrawOverlays(this)) {
             Intent myIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
             startActivity(myIntent);
         }
-    }
+    }*/
 
     private void start_create_overlay_mic_button() {
         Intent i = new Intent(this, create_overlay_mic_button.class);
@@ -1083,29 +1283,37 @@ public class MainActivity extends AppCompatActivity {
             if (edir.exists()) {
                 VOSK_MODEL.DOWNLOADED = true;
                 VOSK_MODEL.USED_PATH = VOSK_MODEL.EXTRACTED_PATH + string_model;
-                String downloaded_status = "Model has been downloaded";
-                textview_downloaded_status.setText(downloaded_status);
                 button_delete_model.setVisibility(View.VISIBLE);
                 button_download_model.setVisibility(View.GONE);
+
                 textview_model_URL.setVisibility(View.GONE);
                 textview_model_zip_file.setVisibility(View.GONE);
                 textview_filesize.setVisibility(View.GONE);
                 textview_bytesdownloaded.setVisibility(View.GONE);
-                textview_downloaded_status.setVisibility(View.GONE);
-                textview_model_used_path.setVisibility(View.VISIBLE);
-                String string_model_used_path = "Model used path=" + VOSK_MODEL.USED_PATH;
-                textview_model_used_path.setText(string_model_used_path);
+                if (checkbox_debug_mode.isChecked()) {
+                    textview_downloaded_status.setVisibility(View.VISIBLE);
+                    String downloaded_status = "VOSK model has been downloaded";
+                    textview_downloaded_status.setVisibility(View.VISIBLE);
+                    textview_downloaded_status.setText(downloaded_status);
+                    textview_model_used_path.setVisibility(View.VISIBLE);
+                    String string_model_used_path = "VOSK model used path = " + VOSK_MODEL.USED_PATH;
+                    textview_model_used_path.setText(string_model_used_path);
+                    String msg = "VOSK model is ready to use";
+                    textview_debug.setText(msg);
+                }
             } else {
                 VOSK_MODEL.DOWNLOADED = false;
                 VOSK_MODEL.USED_PATH = "";
-                String downloaded_status = "Model is not downloaded yet";
-                textview_downloaded_status.setText(downloaded_status);
                 button_delete_model.setVisibility(View.GONE);
                 button_download_model.setVisibility(View.VISIBLE);
-                textview_model_URL.setVisibility(View.VISIBLE);
-                textview_model_zip_file.setVisibility(View.VISIBLE);
-                textview_filesize.setVisibility(View.VISIBLE);
-                //new getFilesize().execute(VOSK_MODEL.URL_ADDRESS);
+                textview_downloaded_status.setVisibility(View.VISIBLE);
+                String downloaded_status = "VOSK model has not been downloaded yet";
+                textview_debug.setText(downloaded_status);
+                if (checkbox_debug_mode.isChecked()) {
+                    textview_model_URL.setVisibility(View.VISIBLE);
+                    textview_model_zip_file.setVisibility(View.VISIBLE);
+                    textview_filesize.setVisibility(View.VISIBLE);
+                }
                 VOSK_MODEL.ZIP_FILESIZE = get_vosk_model_filesize(VOSK_MODEL.URL_ADDRESS);
                 textview_model_used_path.setVisibility(View.GONE);
             }
@@ -1119,19 +1327,12 @@ public class MainActivity extends AppCompatActivity {
         fileOrDirectory.delete();
     }
 
-    private void toast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    public void setText(final TextView tv, final String text){
+        new Handler(Looper.getMainLooper()).post(() -> tv.setText(text));
     }
 
-    public void setText(final TextView tv, final String text){
-        Handler handler = new Handler(Looper.getMainLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                // Any UI task, example
-                tv.setText(text);
-            }
-        };
-        handler.sendEmptyMessage(1);
-    }
+    /*private void toast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }*/
 
 }
