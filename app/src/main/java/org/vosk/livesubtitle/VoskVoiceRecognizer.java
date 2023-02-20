@@ -29,6 +29,7 @@ import org.vosk.android.SpeechStreamService;
 import org.vosk.android.StorageService;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -64,7 +65,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
                 if (MainActivity.voice_text != null) {
                     //get_translation(MainActivity.voice_text.getText(), LANGUAGE.SRC, LANGUAGE.DST);
                     if (MainActivity.voice_text.length() > 0) {
-                        MainActivity.textview_debug2.setText(mlkit_status_message);
+                        MainActivity.textview_output_messages2.setText(mlkit_status_message);
                     }
                     if (TRANSLATION_TEXT.STRING.length() == 0) {
                         create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
@@ -144,9 +145,11 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             timer.schedule(timerTask,0,1000);
         }
         else {
-            timerTask.cancel();
-            timer.cancel();
-            timer.purge();
+            if (timerTask != null) timerTask.cancel();
+            if (timer != null) {
+                timer.cancel();
+                timer.purge();
+            }
         }
     }
 
@@ -158,7 +161,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
     }
 
     private void initDownloadedModel() {
-        if (VOSK_MODEL.DOWNLOADED) {
+        if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
             model = new Model(VOSK_MODEL.USED_PATH);
             recognizeMicrophone();
         } else {
@@ -169,9 +172,9 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             String hints = "Recognized words";
             MainActivity.voice_text.setHint(hints);
             stopSelf();
-            String msg = "You need to download the model first";
+            String msg = "You have to download the model first";
             //toast(msg);
-            setText(MainActivity.textview_debug, msg);
+            setText(MainActivity.textview_output_messages, msg);
         }
     }
 
@@ -187,9 +190,11 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             speechStreamService.stop();
             speechStreamService = null;
         }
-        timerTask.cancel();
-        timer.cancel();
-        timer.purge();
+        if (timerTask != null) timerTask.cancel();
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+        }
     }
 
     @Override
@@ -272,7 +277,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
     }
 
     private void setErrorState(String message) {
-        MainActivity.textview_debug.setText(message);
+        MainActivity.textview_output_messages.setText(message);
         if (speechService != null) speechService.startListening(this);
     }
 
@@ -285,7 +290,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
             MainActivity.textview_overlaying.setText(OVERLAYING_STATUS.STRING);
         } else {
-            MainActivity.textview_debug.setText("");
+            MainActivity.textview_output_messages.setText("");
             try {
                 Recognizer rec = new Recognizer(model, 16000.0f);
                 speechService = new SpeechService(rec, 16000.0f);
@@ -413,7 +418,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             @Override
             public void onError(Exception e) {
                 //toast("Unknown error");
-                setText(MainActivity.textview_debug, e.getMessage());
+                setText(MainActivity.textview_output_messages, e.getMessage());
             }
         });
         translate.execute(t, src, dst);
@@ -447,7 +452,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             @Override
             public void onError(Exception e) {
                 //toast("Unknown error");
-                setText(MainActivity.textview_debug, e.getMessage());
+                setText(MainActivity.textview_output_messages, e.getMessage());
             }
         });
         translate.execute(t, src, dst);

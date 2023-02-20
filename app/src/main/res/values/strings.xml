@@ -22,4 +22,5 @@
     <string name="download_model">Download Model</string>
     <string name="delete_model">Delete Model</string>
     <string name="recognized_words">Recognized words</string>
+    <string name="debug_mode">Debug mode</string>
 </resources>

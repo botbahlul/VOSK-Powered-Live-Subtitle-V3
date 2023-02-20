@@ -11,8 +11,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class Decompress {
-    private String _zipFile;
-    private String _extract_location;
+    private final String _zipFile;
+    private final String _extract_location;
 
     public Decompress(String zipFile, String extract_location) {
         _zipFile = zipFile;
@@ -26,9 +26,9 @@ public class Decompress {
             FileInputStream fin = new FileInputStream(_zipFile);
             ZipInputStream zin = new ZipInputStream(fin);
 
-            byte b[] = new byte[1024];
+            byte[] b = new byte[1024];
 
-            ZipEntry ze = null;
+            ZipEntry ze;
             while ((ze = zin.getNextEntry()) != null) {
                 Log.v("Decompress", "Unzipping " + ze.getName());
 
@@ -60,8 +60,8 @@ public class Decompress {
     private void _dirChecker(String dir) {
         File f = new File(_extract_location + dir);
 
-        if(!f.isDirectory()) {
-            f.mkdirs();
+        if(!f.isDirectory() && f.mkdirs()) {
+            Log.d(f.toString(), "created");
         }
     }
 }
