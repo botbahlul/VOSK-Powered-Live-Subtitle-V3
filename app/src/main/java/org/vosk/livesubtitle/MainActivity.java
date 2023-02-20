@@ -504,9 +504,6 @@ public class MainActivity extends AppCompatActivity {
         OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
         textview_overlaying.setText(OVERLAYING_STATUS.STRING);
 
-        audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        mStreamVolume = audio.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
-
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager.isNotificationPolicyAccessGranted()) {
             audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int) Double.parseDouble(String.valueOf((long) (MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
