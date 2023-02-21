@@ -15,9 +15,7 @@ import java.io.File;
 import java.util.Objects;
 
 public class create_overlay_mic_button extends Service{
-
     public create_overlay_mic_button() {}
-
     private GlobalOverlay mGlobalOverlay_mic_button;
     @SuppressLint("StaticFieldLeak")
     public static ImageView mic_button;

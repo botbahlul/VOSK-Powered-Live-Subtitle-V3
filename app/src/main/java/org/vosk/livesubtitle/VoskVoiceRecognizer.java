@@ -173,8 +173,8 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             MainActivity.voice_text.setHint(hints);
             stopSelf();
             String msg = "You have to download the model first";
-            //toast(msg);
             setText(MainActivity.textview_output_messages, msg);
+            //toast(msg);
         }
     }
 
@@ -196,6 +196,7 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             timer.purge();
         }
     }
+
 
     @Override
     public void onPartialResult(String hypothesis) {

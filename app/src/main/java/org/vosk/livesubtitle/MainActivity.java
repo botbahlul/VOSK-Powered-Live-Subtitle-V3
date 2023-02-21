@@ -52,7 +52,6 @@ import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
     public static AudioManager audio;
     public static int mStreamVolume;
 
@@ -499,10 +498,10 @@ public class MainActivity extends AppCompatActivity {
 
         RECOGNIZING_STATUS.IS_RECOGNIZING = false;
         RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
-        textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+        setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
         OVERLAYING_STATUS.IS_OVERLAYING = false;
         OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-        textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+        setText(textview_overlaying, OVERLAYING_STATUS.STRING);
 
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager.isNotificationPolicyAccessGranted()) {
@@ -531,14 +530,6 @@ public class MainActivity extends AppCompatActivity {
         }
         voice_text.setHeight((int) (h * getResources().getDisplayMetrics().density));
 
-        RECOGNIZING_STATUS.IS_RECOGNIZING = false;
-        RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
-        textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
-
-        OVERLAYING_STATUS.IS_OVERLAYING = false;
-        OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-        textview_overlaying.setText(OVERLAYING_STATUS.STRING);
-
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
             getSupportActionBar().setCustomView(R.layout.actionbar_layout);
@@ -553,20 +544,20 @@ public class MainActivity extends AppCompatActivity {
                 textview_src.setVisibility(View.VISIBLE);
                 textview_dst.setVisibility(View.VISIBLE);
                 textview_recognizing.setVisibility(View.VISIBLE);
-                textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+                setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
                 textview_overlaying.setVisibility(View.VISIBLE);
-                textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
                 textview_output_messages.setVisibility(View.VISIBLE);
                 if (LANGUAGE.SRC != null) {
                     String ls  = "LANGUAGE.SRC = " + LANGUAGE.SRC;
-                    textview_src.setText(ls);
+                    setText(textview_src, ls);
                 }
                 else {
                     textview_src.setHint("LANGUAGE.SRC");
                 }
                 if (LANGUAGE.DST != null) {
                     String ld = "LANGUAGE.DST = " + LANGUAGE.DST;
-                    textview_dst.setText(ld);
+                    setText(textview_dst, ld);
                 }
                 else {
                     textview_src.setHint("LANGUAGE.SRC");
@@ -574,9 +565,8 @@ public class MainActivity extends AppCompatActivity {
                 if (!Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
                     if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
                         textview_model_used_path.setVisibility(View.VISIBLE);
-                        textview_model_used_path.setVisibility(View.VISIBLE);
                         String string_model_used_path = "VOSK_MODEL.USED_PATH = " + VOSK_MODEL.USED_PATH;
-                        textview_model_used_path.setText(string_model_used_path);
+                        setText(textview_model_used_path, string_model_used_path);
                     }
                     else {
                         textview_model_URL.setVisibility(View.VISIBLE);
@@ -611,20 +601,20 @@ public class MainActivity extends AppCompatActivity {
             textview_src.setVisibility(View.VISIBLE);
             textview_dst.setVisibility(View.VISIBLE);
             textview_recognizing.setVisibility(View.VISIBLE);
-            textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+            setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
             textview_overlaying.setVisibility(View.VISIBLE);
-            textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+            setText(textview_overlaying, OVERLAYING_STATUS.STRING);
             textview_output_messages.setVisibility(View.VISIBLE);
             if (LANGUAGE.SRC != null) {
                 String ls  = "LANGUAGE.SRC = " + LANGUAGE.SRC;
-                textview_src.setText(ls);
+                setText(textview_src, ls);
             }
             else {
                 textview_src.setHint("LANGUAGE.SRC");
             }
             if (LANGUAGE.DST != null) {
                 String ld = "LANGUAGE.DST = " + LANGUAGE.DST;
-                textview_dst.setText(ld);
+                setText(textview_dst, ld);
             }
             else {
                 textview_src.setHint("LANGUAGE.SRC");
@@ -634,7 +624,7 @@ public class MainActivity extends AppCompatActivity {
                     textview_model_used_path.setVisibility(View.VISIBLE);
                     textview_model_used_path.setVisibility(View.VISIBLE);
                     String string_model_used_path = "VOSK_MODEL.USED_PATH = " + VOSK_MODEL.USED_PATH;
-                    textview_model_used_path.setText(string_model_used_path);
+                    setText(textview_model_used_path, string_model_used_path);
                 }
                 else {
                     textview_model_URL.setVisibility(View.VISIBLE);
@@ -667,16 +657,16 @@ public class MainActivity extends AppCompatActivity {
         spinner_src_languages.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 setText(textview_output_messages, "");
-                
+
                 LANGUAGE.SRC_COUNTRY = spinner_src_languages.getSelectedItem().toString();
                 LANGUAGE.SRC = map_src_country.get(LANGUAGE.SRC_COUNTRY);
                 String string_src = "LANGUAGE.SRC = " + LANGUAGE.SRC;
-                textview_src.setText(string_src);
+                setText(textview_src, string_src);
 
                 LANGUAGE.DST_COUNTRY = spinner_dst_languages.getSelectedItem().toString();
                 LANGUAGE.DST = map_dst_country.get(LANGUAGE.DST_COUNTRY);
                 String string_dst = "LANGUAGE.DST = " + LANGUAGE.DST;
-                textview_dst.setText(string_dst);
+                setText(textview_dst, string_dst);
 
                 VOSK_MODEL.ISO_CODE = map_model_country.get(LANGUAGE.SRC_COUNTRY);
                 VOSK_MODEL.URL_ADDRESS = map_country_models_URL.get(LANGUAGE.SRC_COUNTRY);
@@ -688,9 +678,9 @@ public class MainActivity extends AppCompatActivity {
                 VOSK_MODEL.USED_PATH = VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE;
 
                 String string_url = "VOSK_MODEL.URL_ADDRESS = " + VOSK_MODEL.URL_ADDRESS;
-                textview_model_URL.setText(string_url);
+                setText(textview_model_URL, string_url);
                 String string_zip_path = "VOSK_MODEL.SAVE_AS = " + VOSK_MODEL.SAVE_AS;
-                textview_model_zip_file.setText(string_zip_path);
+                setText(textview_model_zip_file, string_zip_path);
                 check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
 
                 int h;
@@ -718,7 +708,7 @@ public class MainActivity extends AppCompatActivity {
 
                     start_create_overlay_translation_text();
                     if (TRANSLATION_TEXT.STRING.length() > 0) {
-                        if (create_overlay_translation_text.overlay_translation_text != null) create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
+                        if (create_overlay_translation_text.overlay_translation_text != null) setText(create_overlay_translation_text.overlay_translation_text, TRANSLATION_TEXT.STRING);
                     }
 
                     if (!Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
@@ -729,31 +719,31 @@ public class MainActivity extends AppCompatActivity {
 
                             RECOGNIZING_STATUS.IS_RECOGNIZING = false;
                             RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
-                            textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+                            setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
 
                             OVERLAYING_STATUS.IS_OVERLAYING = false;
                             OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                            textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                            setText(textview_overlaying, OVERLAYING_STATUS.STRING);
 
                             String msg = "You have to download the model first";
                             setText(textview_output_messages, msg);
                         }
                     }
                 }
-                textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
-                textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
+                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
                 LANGUAGE.SRC_COUNTRY = spinner_src_languages.getSelectedItem().toString();
                 LANGUAGE.SRC = map_src_country.get(LANGUAGE.SRC_COUNTRY);
                 String string_src = "LANGUAGE.SRC = " + LANGUAGE.SRC;
-                textview_src.setText(string_src);
+                setText(textview_src, string_src);
 
                 LANGUAGE.DST_COUNTRY = spinner_dst_languages.getSelectedItem().toString();
                 LANGUAGE.DST = map_dst_country.get(LANGUAGE.DST_COUNTRY);
                 String string_dst = "LANGUAGE.DST = " + LANGUAGE.DST;
-                textview_dst.setText(string_dst);
+                setText(textview_dst, string_dst);
 
                 VOSK_MODEL.ISO_CODE = map_model_country.get(LANGUAGE.SRC_COUNTRY);
                 VOSK_MODEL.URL_ADDRESS = map_country_models_URL.get(LANGUAGE.SRC_COUNTRY);
@@ -765,9 +755,9 @@ public class MainActivity extends AppCompatActivity {
                 VOSK_MODEL.USED_PATH = VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE;
 
                 String string_url = "VOSK_MODEL.URL_ADDRESS = " + VOSK_MODEL.URL_ADDRESS;
-                textview_model_URL.setText(string_url);
+                setText(textview_model_URL, string_url);
                 String string_zip_path = "VOSK_MODEL.SAVE_AS = " + VOSK_MODEL.SAVE_AS;
-                textview_model_zip_file.setText(string_zip_path);
+                setText(textview_model_zip_file, string_zip_path);
                 check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
             }
         });
@@ -779,12 +769,12 @@ public class MainActivity extends AppCompatActivity {
                 LANGUAGE.SRC_COUNTRY = spinner_src_languages.getSelectedItem().toString();
                 LANGUAGE.SRC = map_src_country.get(LANGUAGE.SRC_COUNTRY);
                 String string_src = "LANGUAGE.SRC = " + LANGUAGE.SRC;
-                textview_src.setText(string_src);
+                setText(textview_src, string_src);
 
                 LANGUAGE.DST_COUNTRY = spinner_dst_languages.getSelectedItem().toString();
                 LANGUAGE.DST = map_dst_country.get(LANGUAGE.DST_COUNTRY);
                 String string_dst = "LANGUAGE.DST = " + LANGUAGE.DST;
-                textview_dst.setText(string_dst);
+                setText(textview_dst, string_dst);
 
                 int h;
                 if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-CN") || Objects.equals(LANGUAGE.DST, "zh-TW")) {
@@ -811,23 +801,23 @@ public class MainActivity extends AppCompatActivity {
 
                     start_create_overlay_translation_text();
                     if (TRANSLATION_TEXT.STRING.length() > 0) {
-                        if (create_overlay_translation_text.overlay_translation_text != null) create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
+                        if (create_overlay_translation_text.overlay_translation_text != null) setText(create_overlay_translation_text.overlay_translation_text, TRANSLATION_TEXT.STRING);
                     }
                 }
-                textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
-                textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
+                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
                 LANGUAGE.SRC_COUNTRY = spinner_src_languages.getSelectedItem().toString();
                 LANGUAGE.SRC = map_src_country.get(LANGUAGE.SRC_COUNTRY);
                 String string_src = "LANGUAGE.SRC = " + LANGUAGE.SRC;
-                textview_src.setText(string_src);
+                setText(textview_src, string_src);
 
                 LANGUAGE.DST_COUNTRY = spinner_dst_languages.getSelectedItem().toString();
                 LANGUAGE.DST = map_dst_country.get(LANGUAGE.DST_COUNTRY);
                 String string_dst = "LANGUAGE.DST = " + LANGUAGE.DST;
-                textview_dst.setText(string_dst);
+                setText(textview_dst, string_dst);
             }
         });
 
@@ -838,7 +828,6 @@ public class MainActivity extends AppCompatActivity {
                 String msg = ddir + "deleted";
                 //toast(msg);
                 setText(textview_output_messages, msg);
-                //VOSK_MODEL.IS_DOWNLOADED = false;
             }
             check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
         });
@@ -855,7 +844,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            new Thread(() -> DownloadModel(VOSK_MODEL.URL_ADDRESS)).start();
+            new Thread(() -> downloadModel(VOSK_MODEL.URL_ADDRESS)).start();
             runOnUiThread(() -> {
                 File edir = new File(getApplicationContext().getExternalFilesDir(null), "downloaded");
                 if (!edir.exists() && edir.mkdir()) {
@@ -872,7 +861,7 @@ public class MainActivity extends AppCompatActivity {
             if (Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
                 OVERLAYING_STATUS.IS_OVERLAYING = !OVERLAYING_STATUS.IS_OVERLAYING;
                 OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
 
                 if (OVERLAYING_STATUS.IS_OVERLAYING) {
                     if (Settings.canDrawOverlays(getApplicationContext())) {
@@ -898,7 +887,7 @@ public class MainActivity extends AppCompatActivity {
                                 setText(textview_output_messages, os);
                             }
                             OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                            textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                            setText(textview_overlaying, OVERLAYING_STATUS.STRING);
                         }, 15000);
                     }
 
@@ -907,15 +896,15 @@ public class MainActivity extends AppCompatActivity {
                     stop_create_overlay_translation_text();
                     stop_create_overlay_mic_button();
                     RECOGNIZING_STATUS.IS_RECOGNIZING = false;
-                    textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
-                    textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                    setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
+                    setText(textview_overlaying, OVERLAYING_STATUS.STRING);
                     VOICE_TEXT.STRING = "";
                     TRANSLATION_TEXT.STRING = "";
-                    MainActivity.voice_text.setText("");
+                    setText(voice_text, "");
                     String hints = "Recognized words";
-                    MainActivity.voice_text.setHint(hints);
+                    voice_text.setHint(hints);
                     if (create_overlay_translation_text.overlay_translation_text != null) {
-                        create_overlay_translation_text.overlay_translation_text.setText("");
+                        setText(create_overlay_translation_text.overlay_translation_text, "");
                         create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
                         create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
                     }
@@ -924,16 +913,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                     VOICE_TEXT.STRING = "";
                     TRANSLATION_TEXT.STRING = "";
-                    MainActivity.voice_text.setText("");
+                    setText(voice_text, "");
                     hints = "Recognized words";
-                    MainActivity.voice_text.setHint(hints);
+                    voice_text.setHint(hints);
                 }
             }
             else {
                 if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
                     OVERLAYING_STATUS.IS_OVERLAYING = !OVERLAYING_STATUS.IS_OVERLAYING;
                     OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                    textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                    setText(textview_overlaying, OVERLAYING_STATUS.STRING);
                     setText(textview_output_messages,"");
 
                     if (OVERLAYING_STATUS.IS_OVERLAYING) {
@@ -960,7 +949,7 @@ public class MainActivity extends AppCompatActivity {
                                     setText(textview_output_messages, os);
                                 }
                                 OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                                textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
                             }, 15000);
                         }
 
@@ -969,16 +958,16 @@ public class MainActivity extends AppCompatActivity {
                         stop_create_overlay_translation_text();
                         stop_create_overlay_mic_button();
                         RECOGNIZING_STATUS.IS_RECOGNIZING = false;
-                        textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
-                        textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                        setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
+                        setText(textview_overlaying, OVERLAYING_STATUS.STRING);
                         setText(textview_output_messages, "");
                         VOICE_TEXT.STRING = "";
                         TRANSLATION_TEXT.STRING = "";
-                        MainActivity.voice_text.setText("");
+                        setText(voice_text, "");
                         String hints = "Recognized words";
-                        MainActivity.voice_text.setHint(hints);
+                        voice_text.setHint(hints);
                         if (create_overlay_translation_text.overlay_translation_text != null) {
-                            create_overlay_translation_text.overlay_translation_text.setText("");
+                            setText(create_overlay_translation_text.overlay_translation_text, "");
                             create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
                             create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
                         }
@@ -988,9 +977,9 @@ public class MainActivity extends AppCompatActivity {
                         setText(textview_output_messages, "");
                         VOICE_TEXT.STRING = "";
                         TRANSLATION_TEXT.STRING = "";
-                        MainActivity.voice_text.setText("");
+                        setText(voice_text, "");
                         hints = "Recognized words";
-                        MainActivity.voice_text.setHint(hints);
+                        voice_text.setHint(hints);
                     }
                 }
                 else {
@@ -999,11 +988,11 @@ public class MainActivity extends AppCompatActivity {
 
                     RECOGNIZING_STATUS.IS_RECOGNIZING = false;
                     RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
-                    MainActivity.textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
+                    setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
 
                     OVERLAYING_STATUS.IS_OVERLAYING = false;
                     OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                    MainActivity.textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                    setText(textview_overlaying, OVERLAYING_STATUS.STRING);
                 }
             }
         });
@@ -1013,11 +1002,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSIONS_REQUEST_RECORD_AUDIO) {
-            if (!(grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                finish();
-            }
-        }
     }
 
     @Override
@@ -1226,9 +1210,7 @@ public class MainActivity extends AppCompatActivity {
                 URL url = new URL(models_URL);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.connect();
-                response = "Server responses\nconnection.getResponseCode() = " + connection.getResponseCode() + "\nconnection.getResponseMessage() = " + connection.getResponseMessage();
-                //setText(textview_server_response, response);
-                //setText(textview_file_size, string_file_size);
+                response = "Server responses :\nconnection.getResponseCode() = " + connection.getResponseCode() + "\nconnection.getResponseMessage() = " + connection.getResponseMessage();
                 if (connection.getContentLength() > 0) {
                     fileSize = connection.getContentLength();
                     stringFileSize = "VOSK_MODEL.ZIP_FILE_SIZE = " + fileSize + " bytes";
@@ -1251,7 +1233,7 @@ public class MainActivity extends AppCompatActivity {
 
     int count;
     long bytes_downloaded;
-    public void DownloadModel (String models_URL) {
+    public void downloadModel (String models_URL) {
         mProgressBar.setIndeterminate(false);
         mProgressBar.setMax(100);
         mProgressBar.setProgress(0);
@@ -1291,7 +1273,7 @@ public class MainActivity extends AppCompatActivity {
                 if (connection.getContentLength() > 0) {
                     VOSK_MODEL.ZIP_FILE_SIZE = connection.getContentLength();
                     String string_file_size = "VOSK_MODEL.ZIP_FILE_SIZE = " + VOSK_MODEL.ZIP_FILE_SIZE + " bytes";
-                    String response = "Server responses\nconnection.getResponseCode() = " + connection.getResponseCode() + "\nconnection.getResponseMessage() = " + connection.getResponseMessage();
+                    String response = "Server responses :\nconnection.getResponseCode() = " + connection.getResponseCode() + "\nconnection.getResponseMessage() = " + connection.getResponseMessage();
                     setText(textview_server_response, response);
                     InputStream input = connection.getInputStream();
                     FileOutputStream output = new FileOutputStream(VOSK_MODEL.SAVE_AS);
@@ -1310,7 +1292,6 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 handler.post(() -> {
-                    //UI Thread work here
                     mProgressBar.setVisibility(View.GONE);
                     textview_file_size.setVisibility(View.GONE);
                     textview_bytes_downloaded.setVisibility(View.GONE);
@@ -1357,12 +1338,12 @@ public class MainActivity extends AppCompatActivity {
             textview_file_size.setVisibility(View.GONE);
             textview_bytes_downloaded.setVisibility(View.GONE);
             textview_model_used_path.setVisibility(View.GONE);
-            //setText(textview_output_messages, "");
         } else {
             if (edir.exists()) {
                 VOSK_MODEL.USED_PATH = VOSK_MODEL.EXTRACTED_PATH + string_model;
                 button_delete_model.setVisibility(View.VISIBLE);
                 button_download_model.setVisibility(View.GONE);
+
                 textview_model_URL.setVisibility(View.GONE);
                 textview_server_response.setVisibility(View.GONE);
                 textview_model_zip_file.setVisibility(View.GONE);
@@ -1371,9 +1352,7 @@ public class MainActivity extends AppCompatActivity {
                 if (checkbox_debug_mode.isChecked()) {
                     textview_model_used_path.setVisibility(View.VISIBLE);
                     String string_model_used_path = "VOSK_MODEL.USED_PATH = " + VOSK_MODEL.USED_PATH;
-                    textview_model_used_path.setText(string_model_used_path);
-                    //String msg = "VOSK model is ready to use";
-                    //setText(textview_output_messages, msg);
+                    setText(textview_model_used_path, string_model_used_path);
                 }
             } else {
                 VOSK_MODEL.USED_PATH = "";
