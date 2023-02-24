@@ -1,5 +1,5 @@
 # VOSK-Powered-Live-Subtitle-V3
-ANDROID APP that can RECOGNIZE ANY LIVE AUDIO/VIDEO STREAMING (powered by VOSK OFFLINE Speech Recognition API) then TRANSLATE it (using unofficial ONLINE Google Translate API) and display them as SUBTITLES.
+ANDROID APP that can RECOGNIZE ANY LIVE AUDIO/VIDEO STREAMING (using free VOSK Speech Recognition API) then TRANSLATE it (using unofficial ONLINE Google Translate API) and display them as SUBTITLES.
 
 This is modified version of my previous app https://github.com/botbahlul/VOSK-Powered-LIVE-SUBTITLE-V2 (on the TRANSLATION METHODE).
 
