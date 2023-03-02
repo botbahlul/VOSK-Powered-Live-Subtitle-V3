@@ -64,17 +64,19 @@
         </TableRow>
         <TextView
             android:id="@+id/textview_src"
-            android:textAlignment="gravity"
             android:gravity="center"
+            android:textAlignment="gravity"
+            android:textSize="12sp"
+            android:visibility="gone"
+            android:background="@android:drawable/editbox_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
             />
         <Button
             android:id="@+id/button_delete_model"
             android:text="@string/delete_model"
             android:textSize="16sp"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:layout_marginLeft="100dp"
             android:layout_marginRight="100dp"
             android:layout_height="wrap_content"
@@ -84,7 +86,17 @@
             android:id="@+id/button_download_model"
             android:text="@string/download_model"
             android:textSize="16sp"
-            android:visibility="invisible"
+            android:visibility="gone"
+            android:layout_marginLeft="100dp"
+            android:layout_marginRight="100dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            />
+        <Button
+            android:id="@+id/button_cancel"
+            android:text="Cancel"
+            android:textSize="16sp"
+            android:visibility="gone"
             android:layout_marginLeft="100dp"
             android:layout_marginRight="100dp"
             android:layout_height="wrap_content"
@@ -96,7 +108,7 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="invisible"
+            android:visibility="gone"
             />
         <TextView
             android:id="@+id/textview_model_URL"
@@ -105,7 +117,8 @@
             android:gravity="center"
             android:textAlignment="gravity"
             android:textSize="12sp"
-            android:visibility="invisible"
+            android:background="@android:drawable/editbox_background"
+            android:visibility="gone"
             />
         <TextView
             android:id="@+id/textview_model_zip_file"
@@ -114,7 +127,8 @@
             android:gravity="center"
             android:textAlignment="gravity"
             android:textSize="12sp"
-            android:visibility="invisible"
+            android:background="@android:drawable/editbox_background"
+            android:visibility="gone"
             />
         <TextView
             android:id="@+id/textview_server_response"
@@ -123,7 +137,8 @@
             android:gravity="center"
             android:textAlignment="gravity"
             android:textSize="12sp"
-            android:visibility="invisible"
+            android:background="@android:drawable/editbox_background"
+            android:visibility="gone"
             />
         <TextView
             android:id="@+id/textview_file_size"
@@ -132,7 +147,8 @@
             android:gravity="center"
             android:textAlignment="gravity"
             android:textSize="12sp"
-            android:visibility="invisible"
+            android:background="@android:drawable/editbox_background"
+            android:visibility="gone"
             />
         <TextView
             android:id="@+id/textview_bytes_downloaded"
@@ -141,7 +157,8 @@
             android:gravity="center"
             android:textAlignment="gravity"
             android:textSize="12sp"
-            android:visibility="invisible"
+            android:background="@android:drawable/editbox_background"
+            android:visibility="gone"
             />
         <TextView
             android:id="@+id/textview_model_used_path"
@@ -149,7 +166,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textAlignment="gravity"
+            android:background="@android:drawable/editbox_background"
             android:textSize="12sp"
+            android:visibility="gone"
             />
         <View
             android:layout_width="match_parent"
@@ -205,6 +224,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
+            android:visibility="gone"
+            android:background="@android:drawable/editbox_background"
             />
         <View
             android:layout_width="match_parent"
@@ -231,6 +252,8 @@
             android:layout_height="wrap_content"
             android:text=""
             android:textSize="12sp"
+            android:visibility="gone"
+            android:background="@android:drawable/editbox_background"
             />
         <TextView
             android:id="@+id/textview_overlaying"
@@ -239,6 +262,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
+            android:visibility="gone"
+            android:background="@android:drawable/editbox_background"
             />
         <TextView
             android:id="@+id/textview_output_messages"
@@ -248,6 +273,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:scrollbars="vertical"
+            android:background="@android:drawable/editbox_background"
             android:textAppearance="?android:attr/textAppearanceMedium"
             />
     </TableLayout>

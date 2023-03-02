@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private Spinner spinner_src_languages;
     private Button button_delete_model;
     private Button button_download_model;
+    private Button button_cancel;
     private ProgressBar mProgressBar;
     private TextView textview_model_URL;
     private TextView textview_server_response;
@@ -88,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
     public static TextView textview_output_messages;
     @SuppressLint("StaticFieldLeak")
     public static EditText voice_text;
+
+    Thread thread_download_vosk_model;
 
     //DON'T FORGET TO MODIFY AndroidManifest.xml
     //         <activity
@@ -475,13 +478,13 @@ public class MainActivity extends AppCompatActivity {
         setup_src_spinner(arraylist_src_languages);
         button_delete_model = findViewById(R.id.button_delete_model);
         button_download_model = findViewById(R.id.button_download_model);
+        button_cancel = findViewById(R.id.button_cancel);
         mProgressBar = findViewById(R.id.mProgressBar);
         textview_model_URL = findViewById(R.id.textview_model_URL);
         textview_server_response = findViewById(R.id.textview_server_response);
         textview_model_zip_file = findViewById(R.id.textview_model_zip_file);
         textview_file_size = findViewById(R.id.textview_file_size);
         textview_bytes_downloaded = findViewById(R.id.textview_bytes_downloaded);
-        //textview_downloaded_status = findViewById(R.id.textview_downloaded_status);
         textview_model_used_path = findViewById(R.id.textview_model_used_path);
         textview_src = findViewById(R.id.textview_src);
         spinner_dst_languages = findViewById(R.id.spinner_dst_languages);
@@ -493,8 +496,10 @@ public class MainActivity extends AppCompatActivity {
         textview_output_messages = findViewById(R.id.textview_output_messages);
         voice_text = findViewById(R.id.voice_text);
 
-        audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audio = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         mStreamVolume = audio.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
+        setVolumeControlStream(AudioManager.MODE_IN_COMMUNICATION);
+        audio.setSpeakerphoneOn(true);
 
         RECOGNIZING_STATUS.IS_RECOGNIZING = false;
         RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
@@ -505,7 +510,7 @@ public class MainActivity extends AppCompatActivity {
 
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager.isNotificationPolicyAccessGranted()) {
-            audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int) Double.parseDouble(String.valueOf((long) (MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
+            audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int) Double.parseDouble(String.valueOf((long) (audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
         }
         else {
             startActivity(new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
@@ -513,6 +518,7 @@ public class MainActivity extends AppCompatActivity {
 
         VOICE_TEXT.STRING = "";
         TRANSLATION_TEXT.STRING = "";
+        VOSK_MODEL.IS_DOWNLOADING = false;
 
         DisplayMetrics display = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(display);
@@ -541,6 +547,7 @@ public class MainActivity extends AppCompatActivity {
 
         checkbox_debug_mode.setOnClickListener(view -> {
             if(((CompoundButton) view).isChecked()){
+                System.out.println("VOSK_MODEL.IS_DOWNLOADING = " + VOSK_MODEL.IS_DOWNLOADING);
                 textview_src.setVisibility(View.VISIBLE);
                 textview_dst.setVisibility(View.VISIBLE);
                 textview_recognizing.setVisibility(View.VISIBLE);
@@ -573,11 +580,17 @@ public class MainActivity extends AppCompatActivity {
                         textview_server_response.setVisibility(View.VISIBLE);
                         textview_model_zip_file.setVisibility(View.VISIBLE);
                         textview_file_size.setVisibility(View.VISIBLE);
-                        textview_bytes_downloaded.setVisibility(View.VISIBLE);
+                        if (VOSK_MODEL.IS_DOWNLOADING) {
+                            textview_bytes_downloaded.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            textview_bytes_downloaded.setVisibility(View.GONE);
+                        }
                     }
                 }
             }
             else {
+                System.out.println("VOSK_MODEL.IS_DOWNLOADING = " + VOSK_MODEL.IS_DOWNLOADING);
                 textview_src.setVisibility(View.GONE);
                 textview_dst.setVisibility(View.GONE);
                 textview_recognizing.setVisibility(View.GONE);
@@ -590,69 +603,22 @@ public class MainActivity extends AppCompatActivity {
                         textview_model_URL.setVisibility(View.GONE);
                         textview_server_response.setVisibility(View.GONE);
                         textview_model_zip_file.setVisibility(View.GONE);
-                        textview_file_size.setVisibility(View.GONE);
-                        textview_bytes_downloaded.setVisibility(View.GONE);
+                        if (VOSK_MODEL.IS_DOWNLOADING) {
+                            textview_file_size.setVisibility(View.VISIBLE);
+                            textview_bytes_downloaded.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            textview_file_size.setVisibility(View.GONE);
+                            textview_bytes_downloaded.setVisibility(View.GONE);
+                        }
                     }
                 }
-            }
-        });
-
-        if(checkbox_debug_mode.isChecked()){
-            textview_src.setVisibility(View.VISIBLE);
-            textview_dst.setVisibility(View.VISIBLE);
-            textview_recognizing.setVisibility(View.VISIBLE);
-            setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
-            textview_overlaying.setVisibility(View.VISIBLE);
-            setText(textview_overlaying, OVERLAYING_STATUS.STRING);
-            textview_output_messages.setVisibility(View.VISIBLE);
-            if (LANGUAGE.SRC != null) {
-                String ls  = "LANGUAGE.SRC = " + LANGUAGE.SRC;
-                setText(textview_src, ls);
-            }
-            else {
-                textview_src.setHint("LANGUAGE.SRC");
-            }
-            if (LANGUAGE.DST != null) {
-                String ld = "LANGUAGE.DST = " + LANGUAGE.DST;
-                setText(textview_dst, ld);
-            }
-            else {
-                textview_src.setHint("LANGUAGE.SRC");
-            }
-            if (!Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
-                if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
-                    textview_model_used_path.setVisibility(View.VISIBLE);
-                    textview_model_used_path.setVisibility(View.VISIBLE);
-                    String string_model_used_path = "VOSK_MODEL.USED_PATH = " + VOSK_MODEL.USED_PATH;
-                    setText(textview_model_used_path, string_model_used_path);
-                }
                 else {
-                    textview_model_URL.setVisibility(View.VISIBLE);
-                    textview_server_response.setVisibility(View.VISIBLE);
-                    textview_model_zip_file.setVisibility(View.VISIBLE);
-                    textview_file_size.setVisibility(View.VISIBLE);
-                    textview_bytes_downloaded.setVisibility(View.VISIBLE);
-                }
-            }
-        }
-        else {
-            textview_src.setVisibility(View.GONE);
-            textview_dst.setVisibility(View.GONE);
-            textview_recognizing.setVisibility(View.GONE);
-            textview_overlaying.setVisibility(View.GONE);
-            textview_model_used_path.setVisibility(View.GONE);
-            if (!Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
-                if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
-                    textview_model_used_path.setVisibility(View.GONE);
-                } else {
-                    textview_model_URL.setVisibility(View.GONE);
-                    textview_server_response.setVisibility(View.GONE);
-                    textview_model_zip_file.setVisibility(View.GONE);
                     textview_file_size.setVisibility(View.GONE);
                     textview_bytes_downloaded.setVisibility(View.GONE);
                 }
             }
-        }
+        });
 
         spinner_src_languages.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -822,10 +788,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         button_delete_model.setOnClickListener(v -> {
+            setText(textview_output_messages, "");
             File ddir = new File(VOSK_MODEL.USED_PATH);
             if (ddir.exists()) {
                 deleteRecursively(ddir);
-                String msg = ddir + "deleted";
+                String msg;
+                if (checkbox_debug_mode.isChecked()) {
+                    msg = ddir + " deleted";
+                }
+                else {
+                    msg = "Model deleted";
+                }
                 //toast(msg);
                 setText(textview_output_messages, msg);
             }
@@ -833,10 +806,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         button_download_model.setOnClickListener(v -> {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && !Environment.isExternalStorageLegacy()) {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    Uri uri = Uri.parse("package:" + MainActivity.this.getPackageName());
-                    startActivity(new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, uri));
+            setText(textview_output_messages, "");
+            VOSK_MODEL.IS_DOWNLOADING = true;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    try {
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                        intent.addCategory("android.intent.category.DEFAULT");
+                        intent.setData(Uri.parse(String.format("package:%s", getApplicationContext().getPackageName())));
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Intent intent = new Intent();
+                        intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                        startActivity(intent);
+                    }
                 }
             } else {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -844,16 +828,48 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            new Thread(() -> downloadModel(VOSK_MODEL.URL_ADDRESS)).start();
+            thread_download_vosk_model = new Thread(() -> downloadModel(VOSK_MODEL.URL_ADDRESS));
+            thread_download_vosk_model.start();
+
             runOnUiThread(() -> {
                 File edir = new File(getApplicationContext().getExternalFilesDir(null), "downloaded");
                 if (!edir.exists() && edir.mkdir()) {
-                    Log.d(edir.toString(), "created");
+                    Log.d(edir.toString(), edir + " created");
                 }
+                button_download_model.setVisibility(View.GONE);
+                button_cancel.setVisibility(View.VISIBLE);
                 mProgressBar.setVisibility(View.VISIBLE);
                 textview_file_size.setVisibility(View.VISIBLE);
                 textview_bytes_downloaded.setVisibility(View.VISIBLE);
             });
+        });
+
+        button_cancel.setOnClickListener(v -> {
+            setText(textview_output_messages, "");
+            VOSK_MODEL.IS_DOWNLOADING = false;
+            if (thread_download_vosk_model != null) {
+                System.out.print("thread_download_vosk_model interrupted");
+                thread_download_vosk_model.interrupt();
+                thread_download_vosk_model = null;
+            }
+            if (!Objects.equals(VOSK_MODEL.USED_PATH, "")) {
+                File ddir = new File(VOSK_MODEL.USED_PATH);
+                if (ddir.exists()) {
+                    System.out.println(VOSK_MODEL.USED_PATH + " exist");
+                    deleteRecursively(ddir);
+                    String msg;
+                    if (checkbox_debug_mode.isChecked()) {
+                        msg = ddir + " deleted";
+                    } else {
+                        msg = "Model deleted";
+                    }
+                    //toast(msg);
+                    setText(textview_output_messages, msg);
+                } else {
+                    System.out.println(VOSK_MODEL.USED_PATH + " is not exist");
+                }
+            }
+            check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
         });
 
         button_toggle_overlay.setOnClickListener(v -> {
@@ -1006,9 +1022,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         stop_create_overlay_translation_text();
         stop_create_overlay_mic_button();
         stop_vosk_voice_recognizer();
+        audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, mStreamVolume, AudioManager.ADJUST_SAME);
         finish();
     }
 
@@ -1018,6 +1036,7 @@ public class MainActivity extends AppCompatActivity {
         stop_create_overlay_translation_text();
         stop_create_overlay_mic_button();
         stop_vosk_voice_recognizer();
+        audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, mStreamVolume, AudioManager.ADJUST_SAME);
     }
 
     public void setup_src_spinner(ArrayList<String> supported_languages) {
@@ -1035,17 +1054,6 @@ public class MainActivity extends AppCompatActivity {
         spinner_dst_languages.setAdapter(adapter);
         spinner_dst_languages.setSelection(supported_languages.indexOf("Indonesian"));
     }
-
-    /*private void checkRecordAudioPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
-    }*/
-
-    /*private void checkDrawOverlayPermission() {
-        if (!Settings.canDrawOverlays(this)) {
-            Intent myIntent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-            startActivity(myIntent);
-        }
-    }*/
 
     private void start_create_overlay_mic_button() {
         Intent i = new Intent(this, create_overlay_mic_button.class);
@@ -1074,131 +1082,6 @@ public class MainActivity extends AppCompatActivity {
         stopService(new Intent(this, VoskVoiceRecognizer.class));
     }
 
-    /*@SuppressLint("StaticFieldLeak")
-    class getFilesize extends AsyncTask<String, String, String> {
-
-        @Override
-        protected void onPreExecute() {
-            textview_file_size.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected String doInBackground(String... f_url) {
-            try {
-                URL url = new URL(f_url[0]);
-                URLConnection connection = url.openConnection();
-                connection.connect();
-                if (connection.getContentLength() > 0) {
-                    VOSK_MODEL.ZIP_FILE_SIZE = connection.getContentLength();
-                    String string_file_size = "VOSK_MODEL.ZIP_FILE_SIZE = " + VOSK_MODEL.ZIP_FILE_SIZE + " bytes";
-                    setText(textview_file_size, string_file_size);
-                }
-
-            } catch (Exception e) {
-                //Log.e("Error: ", e.getMessage());
-                setText(textview_output_messages, e.getMessage());
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String file_url) {
-            if (VOSK_MODEL.ZIP_FILE_SIZE > 0) {
-                String string_file_size = "VOSK_MODEL.ZIP_FILE_SIZE = " + VOSK_MODEL.ZIP_FILE_SIZE + " bytes";
-                setText(textview_file_size, string_file_size);
-            }
-        }
-    }*/
-
-    /*@SuppressLint("StaticFieldLeak")
-    class DownloadFileFromURL extends AsyncTask<String, String, String> {
-        int VOSK_MODEL.ZIP_FILE_SIZE, count;
-        long bytes_downloaded;
-
-        //
-        // Before starting background thread Show Progress Bar Dialog
-        //
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            textview_bytes_downloaded.setVisibility(View.VISIBLE);
-
-            File dir = new File(String.valueOf(getExternalFilesDir(null)));
-            if(!(dir.exists())){
-                dir.mkdir();
-            }
-
-            File edir = new File(getExternalFilesDir(null), "downloaded");
-            if(!(edir.exists())){
-                edir.mkdir();
-            }
-        }
-
-        //
-        // Downloading file in background thread
-        //
-        @Override
-        protected String doInBackground(String... f_url) {
-            try {
-                URL url = new URL(f_url[0]);
-                URLConnection connection = url.openConnection();
-                connection.connect();
-
-                VOSK_MODEL.ZIP_FILE_SIZE = connection.getContentLength();
-                InputStream input = new BufferedInputStream(url.openStream(), 8192);
-                OutputStream output = new FileOutputStream(VOSK_MODEL.SAVE_AS);
-                byte[] data = new byte[1024];
-                bytes_downloaded = 0;
-
-                while ((count = input.read(data)) != -1) {
-                    bytes_downloaded += count;
-                    publishProgress("" + ((bytes_downloaded * 100) / VOSK_MODEL.ZIP_FILE_SIZE));
-                    output.write(data, 0, count);
-                    String string_bytes_downloaded = "File downloaded=" + bytes_downloaded + " bytes";
-                    setText(textview_bytes_downloaded, string_bytes_downloaded);
-                }
-
-                output.flush();
-                output.close();
-                input.close();
-
-            } catch (Exception e) {
-                //Log.e("Error: ", e.getMessage());
-                setText(textview_output_messages, e.getMessage());
-            }
-            return null;
-        }
-
-        //
-        // Updating progress bar
-        //
-        protected void onProgressUpdate(String... progress) {
-            mProgressBar.setProgress(Integer.parseInt(progress[0]));
-        }
-
-        //
-        // After completing background task Dismiss the progress dialog
-        //
-        @Override
-        protected void onPostExecute(String file_url) {
-            mProgressBar.setVisibility(View.GONE);
-            textview_file_size.setVisibility(View.GONE);
-            textview_bytes_downloaded.setVisibility(View.GONE);
-            VOSK_MODEL.IS_DOWNLOADED = true;
-            Decompress df = new Decompress(VOSK_MODEL.SAVE_AS, VOSK_MODEL.EXTRACTED_PATH);
-            df.unzip();
-            File oldfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ZIP_FILENAME.replace(".zip", ""));
-            File newfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ISO_CODE);
-            oldfolder.renameTo(newfolder);
-            File ddir = new File(VOSK_MODEL.SAVE_AS);
-            deleteRecursively(ddir);
-            VOSK_MODEL.USED_PATH = VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE;
-            String r = "";
-            setText(textview_output_messages, r);
-            check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
-        }
-    }*/
-
     int fileSize;
     String stringFileSize;
     String response;
@@ -1213,7 +1096,12 @@ public class MainActivity extends AppCompatActivity {
                 response = "Server responses :\nconnection.getResponseCode() = " + connection.getResponseCode() + "\nconnection.getResponseMessage() = " + connection.getResponseMessage();
                 if (connection.getContentLength() > 0) {
                     fileSize = connection.getContentLength();
-                    stringFileSize = "VOSK_MODEL.ZIP_FILE_SIZE = " + fileSize + " bytes";
+                    if (checkbox_debug_mode.isChecked()) {
+                        stringFileSize = "VOSK_MODEL.ZIP_FILE_SIZE = " + fileSize + " bytes";
+                    }
+                    else {
+                        stringFileSize = "File size = " + fileSize + " bytes";
+                    }
                 }
 
                 handler.post(()-> {
@@ -1231,6 +1119,7 @@ public class MainActivity extends AppCompatActivity {
         return fileSize;
     }
 
+
     int count;
     long bytes_downloaded;
     public void downloadModel (String models_URL) {
@@ -1239,7 +1128,7 @@ public class MainActivity extends AppCompatActivity {
         mProgressBar.setProgress(0);
 
         File dir = new File(String.valueOf(this.getExternalFilesDir(null)));
-        if(!(dir.exists())){
+        if (!(dir.exists())) {
             boolean mkdir = dir.mkdir();
             if (!mkdir) {
                 String msg = "Directory creation failed";
@@ -1250,7 +1139,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         File edir = new File(this.getExternalFilesDir(null), "downloaded");
-        if(!(edir.exists())){
+        if (!(edir.exists())) {
             boolean mkdir = edir.mkdir();
             if (!mkdir) {
                 String msg = "Directory creation failed";
@@ -1262,6 +1151,7 @@ public class MainActivity extends AppCompatActivity {
 
         Handler handler = new Handler(Looper.getMainLooper());
         ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+
         executor.execute(() -> {
             try {
                 URL url = new URL(models_URL);
@@ -1272,19 +1162,29 @@ public class MainActivity extends AppCompatActivity {
                 bytes_downloaded = 0;
                 if (connection.getContentLength() > 0) {
                     VOSK_MODEL.ZIP_FILE_SIZE = connection.getContentLength();
-                    String string_file_size = "VOSK_MODEL.ZIP_FILE_SIZE = " + VOSK_MODEL.ZIP_FILE_SIZE + " bytes";
                     String response = "Server responses :\nconnection.getResponseCode() = " + connection.getResponseCode() + "\nconnection.getResponseMessage() = " + connection.getResponseMessage();
                     setText(textview_server_response, response);
                     InputStream input = connection.getInputStream();
                     FileOutputStream output = new FileOutputStream(VOSK_MODEL.SAVE_AS);
 
-                    while ((count = input.read(data)) != -1) {
+                    while ((count = input.read(data)) != -1 && VOSK_MODEL.IS_DOWNLOADING) {
+                        String string_file_size;
+                        String string_bytes_downloaded;
                         bytes_downloaded += count;
+
+                        if (checkbox_debug_mode.isChecked()) {
+                            string_file_size = "VOSK_MODEL.ZIP_FILE_SIZE = " + VOSK_MODEL.ZIP_FILE_SIZE + " bytes";
+                            string_bytes_downloaded = "bytes_downloaded = " + bytes_downloaded + " bytes";
+                        } else {
+                            string_file_size = "File size = " + VOSK_MODEL.ZIP_FILE_SIZE + " bytes";
+                            string_bytes_downloaded = "Bytes downloaded = " + bytes_downloaded + " bytes";
+                        }
+
                         publishProgress((int) ((bytes_downloaded * 100) / VOSK_MODEL.ZIP_FILE_SIZE));
                         output.write(data, 0, count);
-                        String string_bytes_received = "bytes_downloaded = " + bytes_downloaded + " bytes";
+
                         setText(textview_file_size, string_file_size);
-                        setText(textview_bytes_downloaded, string_bytes_received);
+                        setText(textview_bytes_downloaded, string_bytes_downloaded);
                     }
                     output.flush();
                     output.close();
@@ -1292,27 +1192,40 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 handler.post(() -> {
-                    mProgressBar.setVisibility(View.GONE);
-                    textview_file_size.setVisibility(View.GONE);
-                    textview_bytes_downloaded.setVisibility(View.GONE);
-                    Decompress df = new Decompress(VOSK_MODEL.SAVE_AS, VOSK_MODEL.EXTRACTED_PATH);
-                    df.unzip();
-                    File oldfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ZIP_FILENAME.replace(".zip", ""));
-                    File newfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ISO_CODE);
+                    if (VOSK_MODEL.IS_DOWNLOADING && bytes_downloaded == VOSK_MODEL.ZIP_FILE_SIZE) {
+                        button_cancel.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(View.GONE);
+                        textview_file_size.setVisibility(View.GONE);
+                        textview_bytes_downloaded.setVisibility(View.GONE);
+                        Decompress df = new Decompress(VOSK_MODEL.SAVE_AS, VOSK_MODEL.EXTRACTED_PATH);
+                        df.unzip();
+                        File oldfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ZIP_FILENAME.replace(".zip", ""));
+                        File newfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ISO_CODE);
 
-                    boolean rendir = oldfolder.renameTo(newfolder);
-                    if (!rendir) {
-                        String msg = "Directory rename failed";
-                        //toast(msg);
-                        setText(textview_output_messages, msg);
-                        //new Handler().postDelayed(() -> setText(textview_output_messages, ""), 3000);
+                        boolean rendir = oldfolder.renameTo(newfolder);
+                        if (!rendir) {
+                            String msg = "Directory rename failed";
+                            //toast(msg);
+                            setText(textview_output_messages, msg);
+                            //new Handler().postDelayed(() -> setText(textview_output_messages, ""), 3000);
+                        }
+
+                        File ddir = new File(VOSK_MODEL.SAVE_AS);
+                        deleteRecursively(ddir);
+                        VOSK_MODEL.USED_PATH = VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE;
+                        setText(textview_output_messages, "");
+                        check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
+                        VOSK_MODEL.IS_DOWNLOADING = false;
                     }
-
-                    File ddir = new File(VOSK_MODEL.SAVE_AS);
-                    deleteRecursively(ddir);
-                    VOSK_MODEL.USED_PATH = VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE;
-                    setText(textview_output_messages, "");
-                    check_vosk_downloaded_model(VOSK_MODEL.ISO_CODE);
+                    else {
+                        button_cancel.setVisibility(View.GONE);
+                        mProgressBar.setVisibility(View.GONE);
+                        textview_file_size.setVisibility(View.GONE);
+                        textview_bytes_downloaded.setVisibility(View.GONE);
+                        button_download_model.setVisibility(View.VISIBLE);
+                        System.out.print("Shutting down executor");
+                        executor.shutdown();
+                    }
                 });
 
             } catch (Exception e) {
@@ -1331,6 +1244,7 @@ public class MainActivity extends AppCompatActivity {
         if (Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
             button_delete_model.setVisibility(View.GONE);
             button_download_model.setVisibility(View.GONE);
+            button_cancel.setVisibility(View.GONE);
             mProgressBar.setVisibility(View.GONE);
             textview_model_URL.setVisibility(View.GONE);
             textview_server_response.setVisibility(View.GONE);
@@ -1342,8 +1256,8 @@ public class MainActivity extends AppCompatActivity {
             if (edir.exists()) {
                 VOSK_MODEL.USED_PATH = VOSK_MODEL.EXTRACTED_PATH + string_model;
                 button_delete_model.setVisibility(View.VISIBLE);
+                button_cancel.setVisibility(View.GONE);
                 button_download_model.setVisibility(View.GONE);
-
                 textview_model_URL.setVisibility(View.GONE);
                 textview_server_response.setVisibility(View.GONE);
                 textview_model_zip_file.setVisibility(View.GONE);
@@ -1358,15 +1272,16 @@ public class MainActivity extends AppCompatActivity {
                 VOSK_MODEL.USED_PATH = "";
                 button_delete_model.setVisibility(View.GONE);
                 button_download_model.setVisibility(View.VISIBLE);
+                button_cancel.setVisibility(View.GONE);
                 if (checkbox_debug_mode.isChecked()) {
                     textview_model_URL.setVisibility(View.VISIBLE);
                     textview_server_response.setVisibility(View.VISIBLE);
                     textview_model_zip_file.setVisibility(View.VISIBLE);
                     textview_file_size.setVisibility(View.VISIBLE);
+                    VOSK_MODEL.ZIP_FILE_SIZE = get_vosk_model_filesize(VOSK_MODEL.URL_ADDRESS);
+                    String string_file_size = "VOSK_MODEL.ZIP_FILE_SIZE = " + VOSK_MODEL.ZIP_FILE_SIZE + " bytes";
+                    runOnUiThread(() -> textview_file_size.setText(string_file_size));
                 }
-                VOSK_MODEL.ZIP_FILE_SIZE = get_vosk_model_filesize(VOSK_MODEL.URL_ADDRESS);
-                String string_file_size = "VOSK_MODEL.ZIP_FILE_SIZE = " + VOSK_MODEL.ZIP_FILE_SIZE + " bytes";
-                setText(textview_file_size, string_file_size);
                 textview_model_used_path.setVisibility(View.GONE);
             }
         }
