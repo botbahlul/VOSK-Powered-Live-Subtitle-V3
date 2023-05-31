@@ -5,4 +5,4 @@ This is modified version of my previous app https://github.com/botbahlul/VOSK-Po
 
 In my opinion this translate methode gives a better accuracy, and also it has more languages support compared to MLKIT Translate API.
 
-Check my other SPEECH RECOGNITIION + TRANSLATE PROJECTS in https://botbahlul.github.io
+Check my other SPEECH RECOGNITIION + TRANSLATE PROJECTS https://github.com/botbahlul?tab=repositories
