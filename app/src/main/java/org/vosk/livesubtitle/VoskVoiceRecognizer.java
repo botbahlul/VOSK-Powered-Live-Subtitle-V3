@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
@@ -136,13 +137,12 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
             timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    if (VOICE_TEXT.STRING != null) {
-                        //translate(VOICE_TEXT.STRING, LANGUAGE.SRC, LANGUAGE.DST);
+                    if (VOICE_TEXT.STRING != null && !Objects.equals(VOICE_TEXT.STRING, "")) {
                         GoogleTranslate(VOICE_TEXT.STRING, LANGUAGE.SRC, LANGUAGE.DST);
                     }
                 }
             };
-            timer.schedule(timerTask,0,1000);
+            timer.schedule(timerTask,0,2000);
         }
         else {
             if (timerTask != null) timerTask.cancel();
@@ -209,9 +209,15 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
                     .replace("\"", "");
         }
         if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
-            VOICE_TEXT.STRING = results.toLowerCase(Locale.forLanguageTag(LANGUAGE.SRC));
-            MainActivity.voice_text.setText(VOICE_TEXT.STRING);
-            MainActivity.voice_text.setSelection(MainActivity.voice_text.getText().length());
+            //if (results != null && !results.equals("") && !results.isEmpty()) {
+                VOICE_TEXT.STRING = results.toLowerCase(Locale.forLanguageTag(LANGUAGE.SRC));
+                MainActivity.voice_text.setText(VOICE_TEXT.STRING);
+                MainActivity.voice_text.setSelection(MainActivity.voice_text.getText().length());
+            //}
+            //else {
+                //VOICE_TEXT.STRING = "";
+                //MainActivity.voice_text.setText("");
+            //}
         }
         else {
             VOICE_TEXT.STRING = "";
@@ -306,6 +312,88 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
         new Handler(Looper.getMainLooper()).post(() -> tv.setText(text));
     }
 
+    /*private void GoogleTranslate2(String SENTENCE, String SRC, String DST) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+        AtomicReference<String> TRANSLATION = new AtomicReference<>("");
+        try {
+            SENTENCE = URLEncoder.encode(SENTENCE, "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        String finalSENTENCE = SENTENCE;
+
+        executor.execute(() -> {
+            try {
+                String url = "https://translate.googleapis.com/translate_a/";
+                String params = "single?client=gtx&sl=" + SRC + "&tl=" + DST + "&dt=t&q=" + finalSENTENCE;
+
+                URL obj = new URL(url + "?" + params);
+                HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+                con.setRequestMethod("GET");
+                con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                con.setRequestProperty("Referer", "https://translate.google.com");
+
+                int responseCode = con.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    String[] responseJson = response.toString().split("\\[")[1].split("\\]")[0].split("\\],\\[");
+                    //String[] responseJson = response.toString().split("\\[")[1].split("]")[0].split("],\\[");
+                    Log.d("GoogleTranslate2", "responseJson = " + Arrays.toString(responseJson));
+
+                    for (String s : responseJson) {
+                        TRANSLATION.set(TRANSLATION + s.split("\"")[1]);
+                    }
+                    //return TRANSLATION.toString();
+                }
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            handler.post(() -> {
+                TRANSLATION_TEXT.STRING = TRANSLATION.toString();
+                if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
+                    if (TRANSLATION_TEXT.STRING.length() == 0) {
+                        create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
+                        create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
+                    } else {
+                        create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
+                        create_overlay_translation_text.overlay_translation_text_container.setBackgroundColor(Color.TRANSPARENT);
+                        create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
+                        create_overlay_translation_text.overlay_translation_text.setBackgroundColor(Color.TRANSPARENT);
+                        create_overlay_translation_text.overlay_translation_text.setTextIsSelectable(true);
+                        create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
+                        create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
+                        Spannable spannableString = new SpannableStringBuilder(TRANSLATION_TEXT.STRING);
+                        spannableString.setSpan(new ForegroundColorSpan(Color.YELLOW),
+                                0,
+                                create_overlay_translation_text.overlay_translation_text.getSelectionEnd(),
+                                0);
+                        spannableString.setSpan(new BackgroundColorSpan(Color.parseColor("#80000000")),
+                                0,
+                                create_overlay_translation_text.overlay_translation_text.getSelectionEnd(),
+                                0);
+                        create_overlay_translation_text.overlay_translation_text.setText(spannableString);
+                        create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
+                    }
+                } else {
+                    create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
+                    create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
+                }
+            });
+
+        });
+    }*/
+
+
     private void GoogleTranslate(String SENTENCE, String SRC, String DST) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Handler handler = new Handler(Looper.getMainLooper());
@@ -317,28 +405,59 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
         }
         String finalSENTENCE = SENTENCE;
         executor.execute(() -> {
+            HttpClient httpClient;
             try {
                 String url = "https://translate.googleapis.com/translate_a/";
                 String params = "single?client=gtx&sl=" + SRC + "&tl=" + DST + "&dt=t&q=" + finalSENTENCE;
-                HttpResponse response = new DefaultHttpClient().execute(new HttpGet(url+params));
+                httpClient = new DefaultHttpClient();
+                HttpGet httpget = new HttpGet(url + params);
+                HttpResponse response = httpClient.execute(httpget);
+                ByteArrayOutputStream byteArrayOutputStream;
                 StatusLine statusLine = response.getStatusLine();
+                JSONArray jsonArray, sentence;
+
                 if (statusLine.getStatusCode() == 200) {
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    byteArrayOutputStream = new ByteArrayOutputStream();
                     response.getEntity().writeTo(byteArrayOutputStream);
                     String stringOfByteArrayOutputStream = byteArrayOutputStream.toString();
-                    byteArrayOutputStream.close();
-                    JSONArray jSONArray = new JSONArray(stringOfByteArrayOutputStream).getJSONArray(0);
-                    for (int i = 0; i < jSONArray.length(); i++) {
-                        JSONArray jSONArray2 = jSONArray.getJSONArray(i);
-                        TRANSLATION.set(TRANSLATION + jSONArray2.get(0).toString());
+                    jsonArray = new JSONArray(stringOfByteArrayOutputStream);
+
+                    //int jsonArrayLength = jsonArray.length();
+                    int sentenceLength = jsonArray.getJSONArray(0).length();
+
+                    /*try {
+                        if (jsonArrayLength == 0) {
+                            Log.d("GoogleTranslate", "sentence = " + jsonArray.getJSONArray(0));
+                            return;
+                        }
+                        else {
+                            sentence = jsonArray.getJSONArray(0);
+                            //Log.d("GoogleTranslate", "sentence = " + sentence);
+                            for (int i = 0; i<sentenceLength; i++) {
+                                TRANSLATION.set(TRANSLATION + sentence.getJSONArray(i).get(0).toString());
+                            }
+                        }
+                    }
+                    catch(Exception e) {
+                        Log.e("GoogleTranslate", e.getMessage());
+                        e.printStackTrace();
+                    }*/
+
+                    sentence = jsonArray.getJSONArray(0);
+                    for (int i = 0; i<sentenceLength; i++) {
+                        TRANSLATION.set(TRANSLATION + sentence.getJSONArray(i).get(0).toString());
                     }
 
-                }
-                else {
+                } else {
                     response.getEntity().getContent().close();
+                    httpClient.getConnectionManager().shutdown();
                     throw new IOException(statusLine.getReasonPhrase());
                 }
-            } catch (Exception e) {
+                byteArrayOutputStream.close();
+                httpClient.getConnectionManager().shutdown();
+            }
+
+            catch (Exception e) {
                 Log.e("GoogleTranslator",e.getMessage());
                 e.printStackTrace();
             }

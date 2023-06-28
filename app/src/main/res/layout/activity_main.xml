@@ -267,6 +267,7 @@
             />
         <TextView
             android:id="@+id/textview_output_messages"
+            android:hint="Output messages"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"

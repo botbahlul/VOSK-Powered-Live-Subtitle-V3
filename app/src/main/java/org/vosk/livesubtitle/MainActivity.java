@@ -36,7 +36,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +52,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -103,93 +108,101 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        arraylist_models.add("en-US");
-        arraylist_models.add("zh-CN");
-        arraylist_models.add("ru-RU");
-        arraylist_models.add("fr-FR");
-        arraylist_models.add("de-DE");
-        arraylist_models.add("es-ES");
-        arraylist_models.add("pt-PT");
-        arraylist_models.add("tr-TR");
-        arraylist_models.add("vi-VN");
-        arraylist_models.add("it-IT");
-        arraylist_models.add("nl-NL");
         arraylist_models.add("ca-ES");
-        arraylist_models.add("fa-IR");
-        arraylist_models.add("uk-UA");
-        arraylist_models.add("kk-KZ");
-        arraylist_models.add("sv-SE");
-        arraylist_models.add("ja-JP");
-        arraylist_models.add("eo-EO");
-        arraylist_models.add("hi-IN");
+        arraylist_models.add("zh-CN");
         arraylist_models.add("cs-CZ");
+        arraylist_models.add("de-DE");
+        arraylist_models.add("en-US");
+        arraylist_models.add("eo-EO");
+        arraylist_models.add("es-ES");
+        arraylist_models.add("fa-IR");
+        arraylist_models.add("fr-FR");
+        arraylist_models.add("hi-IN");
+        arraylist_models.add("it-IT");
+        arraylist_models.add("ja-JP");
+        arraylist_models.add("ko-KR");
+        arraylist_models.add("kk-KZ");
+        arraylist_models.add("nl-NL");
         arraylist_models.add("pl-PL");
+        arraylist_models.add("pt-PT");
+        arraylist_models.add("ru-RU");
+        arraylist_models.add("sv-SE");
+        arraylist_models.add("tr-TR");
+        arraylist_models.add("uk-UA");
+        arraylist_models.add("uz-UZ");
+        arraylist_models.add("vi-VN");
 
-        arraylist_src.add("en");
-        arraylist_src.add("zh");
-        arraylist_src.add("ru");
-        arraylist_src.add("fr");
-        arraylist_src.add("de");
-        arraylist_src.add("es");
-        arraylist_src.add("pt");
-        arraylist_src.add("tr");
-        arraylist_src.add("vi");
-        arraylist_src.add("it");
-        arraylist_src.add("nl");
         arraylist_src.add("ca");
-        arraylist_src.add("fa");
-        arraylist_src.add("uk");
-        arraylist_src.add("kk");
-        arraylist_src.add("sv");
-        arraylist_src.add("ja");
-        arraylist_src.add("eo");
-        arraylist_src.add("hi");
+        arraylist_src.add("zh");
         arraylist_src.add("cs");
+        arraylist_src.add("de");
+        arraylist_src.add("en");
+        arraylist_src.add("eo");
+        arraylist_src.add("es");
+        arraylist_src.add("fa");
+        arraylist_src.add("fr");
+        arraylist_src.add("hi");
+        arraylist_src.add("it");
+        arraylist_src.add("ja");
+        arraylist_src.add("ko");
+        arraylist_src.add("kk");
+        arraylist_src.add("nl");
         arraylist_src.add("pl");
+        arraylist_src.add("pt");
+        arraylist_src.add("ru");
+        arraylist_src.add("sv");
+        arraylist_src.add("tr");
+        arraylist_src.add("uk");
+        arraylist_src.add("uz");
+        arraylist_src.add("vi");
 
-        arraylist_src_languages.add("English");
-        arraylist_src_languages.add("Chinese");
-        arraylist_src_languages.add("Russian");
-        arraylist_src_languages.add("French");
-        arraylist_src_languages.add("German");
-        arraylist_src_languages.add("Spanish");
-        arraylist_src_languages.add("Portuguese");
-        arraylist_src_languages.add("Turkish");
-        arraylist_src_languages.add("Vietnamese");
-        arraylist_src_languages.add("Italian");
-        arraylist_src_languages.add("Dutch");
         arraylist_src_languages.add("Catalan");
-        arraylist_src_languages.add("Persian");
-        arraylist_src_languages.add("Ukrainian");
-        arraylist_src_languages.add("Kazakh");
-        arraylist_src_languages.add("Swedish");
-        arraylist_src_languages.add("Japanese");
-        arraylist_src_languages.add("Esperanto");
-        arraylist_src_languages.add("Hindi");
+        arraylist_src_languages.add("Chinese");
         arraylist_src_languages.add("Czech");
+        arraylist_src_languages.add("German");
+        arraylist_src_languages.add("English");
+        arraylist_src_languages.add("Esperanto");
+        arraylist_src_languages.add("Spanish");
+        arraylist_src_languages.add("Persian");
+        arraylist_src_languages.add("French");
+        arraylist_src_languages.add("Hindi");
+        arraylist_src_languages.add("Italian");
+        arraylist_src_languages.add("Japanese");
+        arraylist_src_languages.add("Korean");
+        arraylist_src_languages.add("Kazakh");
+        arraylist_src_languages.add("Dutch");
         arraylist_src_languages.add("Polish");
+        arraylist_src_languages.add("Portuguese");
+        arraylist_src_languages.add("Russian");
+        arraylist_src_languages.add("Swedish");
+        arraylist_src_languages.add("Turkish");
+        arraylist_src_languages.add("Ukrainian");
+        arraylist_src_languages.add("Uzbek");
+        arraylist_src_languages.add("Vietnamese");
 
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-cn-0.22.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-pt-0.3.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-tr-0.3.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-vn-0.3.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-it-0.22.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-nl-0.22.zip");
         arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-ca-0.4.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-fa-0.5.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-uk-v3-small.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-kz-0.15.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-sv-rhasspy-0.15.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-ja-0.22.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-eo-0.42.zip");
-        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-hi-0.22.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-cn-0.22.zip");
         arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-cs-0.4-rhasspy.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-de-0.15.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-eo-0.42.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-es-0.42.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-fa-0.5.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-hi-0.22.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-it-0.22.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-ja-0.22.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-ko-0.22.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-kz-0.15.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-nl-0.22.zip");
         arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-pl-0.22.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-pt-0.3.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-sv-rhasspy-0.15.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-tr-0.3.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-uk-v3-small.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-uz-0.22.zip");
+        arraylist_models_URL.add("https://alphacephei.com/vosk/models/vosk-model-small-vn-0.3.zip");
 
         for (int i = 0; i < arraylist_src_languages.size(); i++) {
             map_model_country.put(arraylist_src_languages.get(i), arraylist_models.get(i));
@@ -547,7 +560,6 @@ public class MainActivity extends AppCompatActivity {
 
         checkbox_debug_mode.setOnClickListener(view -> {
             if(((CompoundButton) view).isChecked()){
-                System.out.println("VOSK_MODEL.IS_DOWNLOADING = " + VOSK_MODEL.IS_DOWNLOADING);
                 textview_src.setVisibility(View.VISIBLE);
                 textview_dst.setVisibility(View.VISIBLE);
                 textview_recognizing.setVisibility(View.VISIBLE);
@@ -590,7 +602,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             else {
-                System.out.println("VOSK_MODEL.IS_DOWNLOADING = " + VOSK_MODEL.IS_DOWNLOADING);
                 textview_src.setVisibility(View.GONE);
                 textview_dst.setVisibility(View.GONE);
                 textview_recognizing.setVisibility(View.GONE);
@@ -842,12 +853,17 @@ public class MainActivity extends AppCompatActivity {
                 textview_file_size.setVisibility(View.VISIBLE);
                 textview_bytes_downloaded.setVisibility(View.VISIBLE);
             });
+
+            if (thread_download_vosk_model.isAlive()
+                    && new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
+                thread_download_vosk_model.interrupt();
+            }
         });
 
         button_cancel.setOnClickListener(v -> {
             setText(textview_output_messages, "");
             VOSK_MODEL.IS_DOWNLOADING = false;
-            if (thread_download_vosk_model != null) {
+            if (thread_download_vosk_model.isAlive()) {
                 System.out.print("thread_download_vosk_model interrupted");
                 thread_download_vosk_model.interrupt();
                 thread_download_vosk_model = null;
@@ -1023,6 +1039,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        if (thread_download_vosk_model!= null && thread_download_vosk_model.isAlive()) thread_download_vosk_model.interrupt();
         stop_create_overlay_translation_text();
         stop_create_overlay_mic_button();
         stop_vosk_voice_recognizer();
@@ -1197,8 +1214,9 @@ public class MainActivity extends AppCompatActivity {
                         mProgressBar.setVisibility(View.GONE);
                         textview_file_size.setVisibility(View.GONE);
                         textview_bytes_downloaded.setVisibility(View.GONE);
-                        Decompress df = new Decompress(VOSK_MODEL.SAVE_AS, VOSK_MODEL.EXTRACTED_PATH);
-                        df.unzip();
+                        String m = "Unzipping " + VOSK_MODEL.ZIP_FILENAME;
+                        textview_output_messages.setText(m);
+                        unzip(VOSK_MODEL.SAVE_AS, VOSK_MODEL.EXTRACTED_PATH);
                         File oldfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ZIP_FILENAME.replace(".zip", ""));
                         File newfolder = new File(VOSK_MODEL.EXTRACTED_PATH, VOSK_MODEL.ISO_CODE);
 
@@ -1237,6 +1255,46 @@ public class MainActivity extends AppCompatActivity {
 
     private void publishProgress(Integer... progress) {
         mProgressBar.setProgress(progress[0]);
+    }
+
+    public void unzip(String zipFile, String extractLocation) {
+        try {
+            FileInputStream fin = new FileInputStream(zipFile);
+            ZipInputStream zin = new ZipInputStream(fin);
+            byte[] b = new byte[1024];
+            ZipEntry ze;
+            while ((ze = zin.getNextEntry()) != null) {
+                Log.v("unzip", "Unzipping " + ze.getName());
+                String msg = "Unzipping " + ze.getName();
+                runOnUiThread(() -> textview_output_messages.setText(msg));
+
+                if (ze.isDirectory()) {
+                    dirChecker(ze.getName(), extractLocation);
+                } else {
+                    FileOutputStream fout = new FileOutputStream(extractLocation + ze.getName());
+                    BufferedInputStream in = new BufferedInputStream(zin);
+                    BufferedOutputStream out = new BufferedOutputStream(fout);
+                    int n;
+                    while ((n = in.read(b, 0, 1024)) >= 0) {
+                        out.write(b, 0, n);
+                    }
+                    zin.closeEntry();
+                    out.close();
+                }
+            }
+            zin.close();
+        } catch (Exception e) {
+            Log.e("Decompress", "unzip", e);
+            String m = "unzip " + e;
+            textview_output_messages.setText(m);
+        }
+    }
+
+    private void dirChecker(String dir, String extractLocation) {
+        File f = new File(extractLocation + dir);
+        if(!f.isDirectory() && f.mkdirs()) {
+            Log.d("dirChecker", extractLocation + " created");
+        }
     }
 
     private void check_vosk_downloaded_model(String string_model) {

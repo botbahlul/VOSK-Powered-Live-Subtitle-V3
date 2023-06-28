@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
@@ -30,7 +31,8 @@ public class GoogleTranslatorClient5 extends AsyncTask<String, String, String> {
             sb.append(((String[]) strings)[2]);
             sb.append("&q=");
             sb.append(encode);
-            HttpResponse execute = new DefaultHttpClient().execute(new HttpGet(sb.toString()));
+			HttpClient httpClient = new DefaultHttpClient();
+            HttpResponse execute = httpClient.execute(new HttpGet(sb.toString()));
             StatusLine statusLine = execute.getStatusLine();
             if (statusLine.getStatusCode() == 200) {
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -50,6 +52,7 @@ public class GoogleTranslatorClient5 extends AsyncTask<String, String, String> {
                 return translation.toString();
             }
             execute.getEntity().getContent().close();
+			httpClient.getConnectionManager().shutdown();
             throw new IOException(statusLine.getReasonPhrase());
         } catch (Exception e) {
             Log.e("GoogleTranslatorClient5",e.getMessage());
