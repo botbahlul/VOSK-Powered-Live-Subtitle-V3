@@ -1,14 +1,14 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
+    android:orientation="vertical"
+    android:padding="1dp"
+    android:fillViewport="false"
+    android:layout_gravity="center_horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_marginLeft="5dp"
     android:layout_marginRight="5dp"
-    android:layout_gravity="center_horizontal"
-    android:orientation="vertical"
-    android:padding="1dp"
-    android:fillViewport="false"
     >
     <TableLayout
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
             android:gravity="start|center"
             android:textAlignment="gravity"
             android:textSize="16sp"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:layout_marginTop="0dp"
@@ -40,34 +40,35 @@
             android:checked="false"
             />
         <TableRow>
-        <TextView
-            android:id="@+id/textview_text1"
-            android:textAlignment="gravity"
-            android:gravity="start"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:textSize="16sp"
-            android:text="@string/voice_language"
-            />
-        <Spinner
-            android:id="@+id/spinner_src_languages"
-            android:layout_width="210dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:contentDescription="@string/spinner_src_languages"
-            android:backgroundTint="@color/colorPrimary"
-            android:gravity="center"
-            android:minHeight="40dp"
-            android:spinnerMode="dropdown"
-            android:textAlignment="gravity"
-            />
+            <TextView
+                android:id="@+id/textview_text1"
+                android:textAlignment="gravity"
+                android:gravity="start"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textSize="16sp"
+                android:text="@string/voice_language"
+                />
+            <Spinner
+                android:id="@+id/spinner_src_languages"
+                android:layout_width="210dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:contentDescription="@string/spinner_src_languages"
+                android:backgroundTint="@color/colorPrimary"
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:spinnerMode="dropdown"
+                android:textAlignment="gravity"
+                />
         </TableRow>
         <TextView
             android:id="@+id/textview_src"
             android:gravity="center"
             android:textAlignment="gravity"
             android:textSize="12sp"
-            android:visibility="gone"            android:background="@android:drawable/editbox_background"
+            android:visibility="gone"
+            android:background="@android:drawable/editbox_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             />
@@ -194,27 +195,27 @@
             android:layout_height="12sp"
             />
         <TableRow>
-        <TextView
-            android:id="@+id/textview_text2"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:gravity="start"
-            android:text="@string/translation_language"
-            android:textAlignment="gravity"
-            android:textSize="16sp"
-            />
-        <Spinner
-            android:id="@+id/spinner_dst_languages"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:contentDescription="@string/spinner_dst_languages"
-            android:backgroundTint="@color/colorPrimary"
-            android:gravity="center"
-            android:minHeight="40dp"
-            android:spinnerMode="dropdown"
-            android:textAlignment="gravity"
-            />
+            <TextView
+                android:id="@+id/textview_text2"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:gravity="start"
+                android:text="@string/translation_language"
+                android:textAlignment="gravity"
+                android:textSize="16sp"
+                />
+            <Spinner
+                android:id="@+id/spinner_dst_languages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:contentDescription="@string/spinner_dst_languages"
+                android:backgroundTint="@color/colorPrimary"
+                android:gravity="center"
+                android:minHeight="40dp"
+                android:spinnerMode="dropdown"
+                android:textAlignment="gravity"
+                />
         </TableRow>
         <TextView
             android:id="@+id/textview_dst"
@@ -266,21 +267,10 @@
             />
         <TextView
             android:id="@+id/textview_output_messages"
-            android:layout_width="wrap_content"
+            android:hint="Output messages"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:scrollbars="vertical"
-            android:background="@android:drawable/editbox_background"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            />
-        <TextView
-            android:id="@+id/textview_mlkit_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:visibility="gone"
             android:layout_gravity="center"
             android:gravity="center"
             android:scrollbars="vertical"

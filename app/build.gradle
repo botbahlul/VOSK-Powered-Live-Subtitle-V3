@@ -11,7 +11,7 @@ android {
         minSdk 23
         targetSdk 33
         versionCode 1
-        versionName "1.0.5"
+        versionName "1.0.8"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,9 +38,8 @@ dependencies {
     //implementation 'net.java.dev.jna:jna:5.8.0@aar'
     //implementation files('libs/jna-5.8.0.aar')
     //implementation group: 'com.alphacephei', name: 'vosk-android', version: '0.3.32'
+    //implementation files('libs/vosk-android-0.3.32.aar')
     implementation project(':models')
-    implementation 'com.google.mlkit:translate:17.0.1'
-    implementation 'com.google.android.gms:play-services-mlkit-language-id:17.0.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

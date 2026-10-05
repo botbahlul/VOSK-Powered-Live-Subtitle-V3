@@ -70,7 +70,7 @@ public class create_overlay_translation_text extends Service {
             overlay_translation_text_container.setVisibility(View.INVISIBLE);
         }
         int h;
-        if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh")) {
+        if (Objects.equals(LANGUAGE.DST, "ja") || Objects.equals(LANGUAGE.DST, "zh-Hans") || Objects.equals(LANGUAGE.DST, "zh-Hant")) {
             h = 75;
         }
         else {

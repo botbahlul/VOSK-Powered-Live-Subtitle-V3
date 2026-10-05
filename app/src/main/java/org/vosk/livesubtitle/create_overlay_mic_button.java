@@ -37,7 +37,7 @@ public class create_overlay_mic_button extends Service{
         if (mGlobalOverlay_mic_button != null) {
             mGlobalOverlay_mic_button.removeOverlayView(mic_button);
         }
-        if (OVER_REMOVEVIEW_STATUS.IS_OVER) {
+        if (IS_OVER_REMOVEVIEW.IS_OVER) {
             stop_vosk_voice_recognizer();
             stop_create_overlay_translation_text();
             RECOGNIZING_STATUS.IS_RECOGNIZING = false;
@@ -54,7 +54,6 @@ public class create_overlay_mic_button extends Service{
 
             NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
             if (notificationManager.isNotificationPolicyAccessGranted()) {
-                //MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int) Double.parseDouble(String.valueOf((long) (MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
                 MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
             }
             else {
@@ -112,8 +111,8 @@ public class create_overlay_mic_button extends Service{
 
                         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
                         if (notificationManager.isNotificationPolicyAccessGranted()) {
-                            //MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int) Double.parseDouble(String.valueOf((long) (MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
                             MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, MainActivity.mStreamVolume, AudioManager.ADJUST_SAME);
+                            //MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int) Double.parseDouble(String.valueOf((long) (MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
                         }
                         else {
                             Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
@@ -219,5 +218,9 @@ public class create_overlay_mic_button extends Service{
     private void stop_create_overlay_translation_text() {
         stopService(new Intent(this, create_overlay_translation_text.class));
     }
+
+    /*private void toast(String message) {
+        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show());
+    }*/
 
 }
