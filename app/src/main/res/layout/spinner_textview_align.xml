@@ -6,5 +6,5 @@
 		android:layout_height="wrap_content"
 		android:textSize="16sp"
 		android:textAlignment="gravity"
-		android:gravity="center"
+		android:gravity="start"
 	/>

@@ -9,4 +9,5 @@ public class VOSK_MODEL {
     public static String USED_PATH;
     public static String SAVE_AS;
     public static String EXTRACTED_PATH;
+    //public static boolean DOWNLOADED;
 }

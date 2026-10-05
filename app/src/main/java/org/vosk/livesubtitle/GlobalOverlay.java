@@ -141,7 +141,7 @@ public class GlobalOverlay {
                         mRemoveView.getLocationOnScreen(removeViewLocation);
                         isOverRemoveView = isPointInArea(overlayViewLocation[0], overlayViewLocation[1],
                                 removeViewLocation[0], removeViewLocation[1], mRemoveView.getWidth());
-                        IS_OVER_REMOVEVIEW.IS_OVER = isOverRemoveView;
+                        OVER_REMOVEVIEW_STATUS.IS_OVER = isOverRemoveView;
 
                         return true;
                     case MotionEvent.ACTION_UP:
