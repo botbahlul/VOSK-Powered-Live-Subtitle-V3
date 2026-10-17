@@ -1,18 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<EditText
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/overlay_translation_text"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="96dp"
-    android:layout_centerHorizontal="true"
-    android:gravity="left"
-    android:focusable="false"
-    android:focusableInTouchMode="true"
-    android:background="@android:color/transparent"
-    android:textAlignment="gravity"
-    android:maxLines="3"
-    android:textSize="18sp"
-    android:textColor="@color/yellow"
-    android:textColorHint="#757575"
-    android:autofillHints=""
-    />
+    android:layout_height="match_parent"
+    android:background="#00000000">
+
+    <EditText
+        android:id="@+id/overlay_translation_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="left"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:background="#00000000"
+        android:textAlignment="gravity"
+        android:maxLines="6"
+        android:textSize="18sp"
+        android:textColor="#FFFF00"
+        android:textColorHint="#757575"
+        android:autofillHints=""
+        tools:ignore="LabelFor,TextFields"
+        />
+    <TextView
+        android:id="@+id/overlay_resize_handle"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_gravity="bottom|end"
+        android:gravity="center"
+        android:text="⤡"
+        android:textColor="#80FFFFFF"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:background="#00000000"
+        android:contentDescription="Resize overlay"
+        />
+</FrameLayout>

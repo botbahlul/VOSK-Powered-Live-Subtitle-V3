@@ -30,7 +30,7 @@
             android:padding="0dp"
             android:gravity="start|center"
             android:textAlignment="gravity"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -46,7 +46,7 @@
                 android:gravity="start"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:text="@string/voice_language"
                 />
             <Spinner
@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:contentDescription="@string/spinner_src_languages"
-                android:backgroundTint="@color/colorPrimary"
+                android:backgroundTint="@color/lightGrayishWhite"
                 android:gravity="center"
                 android:minHeight="40dp"
                 android:spinnerMode="dropdown"
@@ -74,32 +74,35 @@
             />
         <Button
             android:id="@+id/button_delete_model"
+            android:gravity="center"
             android:text="@string/delete_model"
-            android:textSize="16sp"
-            android:visibility="gone"
-            android:layout_marginLeft="100dp"
-            android:layout_marginRight="100dp"
-            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:visibility="visible"
+            android:layout_marginLeft="130dp"
+            android:layout_marginRight="130dp"
+            android:layout_height="36dp"
             android:layout_width="wrap_content"
             />
         <Button
             android:id="@+id/button_download_model"
+            android:gravity="center"
             android:text="@string/download_model"
-            android:textSize="16sp"
-            android:visibility="gone"
-            android:layout_marginLeft="100dp"
-            android:layout_marginRight="100dp"
-            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:visibility="visible"
+            android:layout_marginLeft="120dp"
+            android:layout_marginRight="120dp"
+            android:layout_height="36dp"
             android:layout_width="wrap_content"
             />
         <Button
             android:id="@+id/button_cancel"
+            android:gravity="center"
             android:text="Cancel"
-            android:textSize="16sp"
-            android:visibility="gone"
-            android:layout_marginLeft="100dp"
-            android:layout_marginRight="100dp"
-            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:visibility="visible"
+            android:layout_marginLeft="160dp"
+            android:layout_marginRight="160dp"
+            android:layout_height="36dp"
             android:layout_width="wrap_content"
             />
         <ProgressBar
@@ -175,6 +178,22 @@
             android:layout_height="12sp"
             />
         <EditText
+            android:id="@+id/full_voice_text"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:autofillHints=""
+            android:background="@android:drawable/editbox_background"
+            android:gravity="bottom"
+            android:focusable="false"
+            android:focusableInTouchMode="true"
+            android:hint="@string/recognized_sentences"
+            android:maxLines="3"
+            android:textSize="18sp"
+            android:textAlignment="gravity"
+            android:textColorHint="#616161"
+            tools:ignore="LabelFor,TextFields"
+            />
+        <EditText
             android:id="@+id/voice_text"
             android:layout_width="match_parent"
             android:layout_height="120dp"
@@ -202,7 +221,7 @@
                 android:gravity="start"
                 android:text="@string/translation_language"
                 android:textAlignment="gravity"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 />
             <Spinner
                 android:id="@+id/spinner_dst_languages"
@@ -210,7 +229,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:contentDescription="@string/spinner_dst_languages"
-                android:backgroundTint="@color/colorPrimary"
+                android:backgroundTint="@color/lightGrayishWhite"
                 android:gravity="center"
                 android:minHeight="40dp"
                 android:spinnerMode="dropdown"
@@ -234,9 +253,9 @@
         <Button
             android:id="@+id/button_toggle_overlay"
             android:text="@string/toggle_overlay"
-            android:textSize="16sp"
-            android:layout_marginLeft="100dp"
-            android:layout_marginRight="100dp"
+            android:textSize="14sp"
+            android:layout_marginLeft="60dp"
+            android:layout_marginRight="60dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             />

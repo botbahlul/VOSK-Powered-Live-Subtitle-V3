@@ -7,9 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.io.File;
 import java.util.Objects;
@@ -19,7 +22,6 @@ public class create_overlay_mic_button extends Service{
     private GlobalOverlay mGlobalOverlay_mic_button;
     @SuppressLint("StaticFieldLeak")
     public static ImageView mic_button;
-    private final String hints = "Recognized words";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -50,7 +52,9 @@ public class create_overlay_mic_button extends Service{
             VOICE_TEXT.STRING = "";
             TRANSLATION_TEXT.STRING = "";
             MainActivity.voice_text.setText("");
-            MainActivity.voice_text.setHint(hints);
+            MainActivity.voice_text.setHint("Recognized words");
+            MainActivity.full_voice_text.setText("");
+            MainActivity.full_voice_text.setHint("Recognized sentences");
 
             NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
             if (notificationManager.isNotificationPolicyAccessGranted()) {
@@ -67,6 +71,12 @@ public class create_overlay_mic_button extends Service{
                 create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
                 create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
             }
+            if (create_overlay_translation_text.overlay_full_translation_text != null) {
+                create_overlay_translation_text.overlay_full_translation_text.setText("");
+                create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.INVISIBLE);
+                create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.INVISIBLE);
+            }
+
             if (create_overlay_mic_button.mic_button != null) {
                 create_overlay_mic_button.mic_button.setVisibility(View.INVISIBLE);
             }
@@ -74,11 +84,13 @@ public class create_overlay_mic_button extends Service{
         VOICE_TEXT.STRING = "";
         TRANSLATION_TEXT.STRING = "";
         MainActivity.voice_text.setText("");
+        MainActivity.voice_text.setHint("Recognized words");
+        MainActivity.full_voice_text.setText("");
+        MainActivity.full_voice_text.setHint("Recognized sentences");
         RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
         MainActivity.textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
         OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
         MainActivity.textview_overlaying.setText(OVERLAYING_STATUS.STRING);
-        MainActivity.voice_text.setHint(hints);
     }
 
     private void create_mic_button() {
@@ -107,14 +119,15 @@ public class create_overlay_mic_button extends Service{
                         VOICE_TEXT.STRING = "";
                         TRANSLATION_TEXT.STRING = "";
                         MainActivity.voice_text.setText("");
-                        MainActivity.voice_text.setHint(hints);
+                        MainActivity.voice_text.setHint("Recognized words");
+                        MainActivity.full_voice_text.setText("");
+                        MainActivity.full_voice_text.setHint("Recognized sentences");
 
                         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
                         if (notificationManager.isNotificationPolicyAccessGranted()) {
                             MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, MainActivity.mStreamVolume, AudioManager.ADJUST_SAME);
                             //MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, (int) Double.parseDouble(String.valueOf((long) (MainActivity.audio.getStreamMaxVolume(AudioManager.STREAM_NOTIFICATION) / 2))), 0);
-                        }
-                        else {
+                        } else {
                             Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
@@ -125,12 +138,17 @@ public class create_overlay_mic_button extends Service{
                             create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
                             create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
                         }
+                        if (create_overlay_translation_text.overlay_full_translation_text_container != null) {
+                            setText(create_overlay_translation_text.overlay_full_translation_text, "");
+                            create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.INVISIBLE);
+                            create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.INVISIBLE);
+                        }
+
                     } else {
                         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
                         if (notificationManager.isNotificationPolicyAccessGranted()) {
                             MainActivity.audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, 0, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-                        }
-                        else {
+                        } else {
                             Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
@@ -140,36 +158,24 @@ public class create_overlay_mic_button extends Service{
                             start_vosk_voice_recognizer();
                             mic_button.setImageResource(R.drawable.ic_mic_black_on);
                             MainActivity.textview_output_messages.setText(R.string.say_something);
-                            if (TRANSLATION_TEXT.STRING.length() == 0) {
-                                if (create_overlay_translation_text.overlay_translation_text != null) {
-                                    create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
-                                    create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
-                                }
-                            } else {
-                                if (create_overlay_translation_text.overlay_translation_text != null) {
+                            if (TRANSLATION_TEXT.STRING.length() != 0) {
+                                if (create_overlay_translation_text.overlay_translation_text_container != null) {
                                     create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
                                     create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
                                 start_vosk_voice_recognizer();
                                 mic_button.setImageResource(R.drawable.ic_mic_black_on);
                                 MainActivity.textview_output_messages.setText(R.string.say_something);
-                                if (TRANSLATION_TEXT.STRING.length() == 0) {
-                                    if (create_overlay_translation_text.overlay_translation_text != null) {
-                                        create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
-                                        create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
-                                    }
-                                } else {
+                                if (TRANSLATION_TEXT.STRING.length() != 0) {
                                     if (create_overlay_translation_text.overlay_translation_text != null) {
                                         create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
                                         create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 String msg = "You have to download the model first";
                                 MainActivity.textview_output_messages.setText(msg);
 
@@ -186,23 +192,21 @@ public class create_overlay_mic_button extends Service{
                         }
                     }
                 },
-                /*new View.OnLongClickListener() {
+                new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
                         return false;
                     }
-                },*/
-                v -> false,
-                /*new GlobalOverlay.OnRemoveOverlayListener() {
+                },
+                new GlobalOverlay.OnRemoveOverlayListener() {
                     @Override
-                    public void onRemoveOverlay(View mic_button, boolean isRemovedByUser) {
-                        //toast("onRemoveOverlay");
-                        stopSelf();
+                    public void onRemoveOverlay(View view, boolean isRemovedByUser) {
+                        if (view == mic_button && isRemovedByUser) {
+                            MIC_BUTTON_STATUS.IS_OVERLAYING = false;
+                            //toast("onRemoveOverlay");
+                            stopSelf();
+                        }
                     }
-                });*/
-                (mic_button, isRemovedByUser) -> {
-                    //toast("onRemoveOverlay");
-                    stopSelf();
                 });
     }
 
@@ -217,6 +221,10 @@ public class create_overlay_mic_button extends Service{
 
     private void stop_create_overlay_translation_text() {
         stopService(new Intent(this, create_overlay_translation_text.class));
+    }
+
+    public void setText(final TextView tv, final String text){
+        new Handler(Looper.getMainLooper()).post(() -> tv.setText(text));
     }
 
     /*private void toast(String message) {

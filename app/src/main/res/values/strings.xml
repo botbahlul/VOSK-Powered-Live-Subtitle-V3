@@ -18,9 +18,10 @@
     <string name="spinner_src_languages">spinner_src_languages</string>
     <string name="translation_language">Translation Language</string>
     <string name="spinner_dst_languages">spinner_dst_languages</string>
-    <string name="toggle_overlay">Toggle Overlay\n(ON/OFF)</string>
+    <string name="toggle_overlay">Toggle Overlay Mic Button\n(ON/OFF)</string>
     <string name="download_model">Download Model</string>
     <string name="delete_model">Delete Model</string>
     <string name="recognized_words">Recognized words</string>
     <string name="debug_mode">Debug mode</string>
+    <string name="recognized_sentences">Recognized sentences</string>
 </resources>

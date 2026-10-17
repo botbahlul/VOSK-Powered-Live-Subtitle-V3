@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00000000">
+
+    <EditText
+        android:id="@+id/overlay_full_translation_text"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:gravity="bottom"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:background="#00000000"
+        android:textAlignment="gravity"
+        android:maxLines="6"
+        android:textSize="18sp"
+        android:textColor="#FF00FFFF"
+        android:textColorHint="#757575"
+        android:autofillHints=""
+        tools:ignore="LabelFor,TextFields"
+        />
+    <TextView
+        android:id="@+id/overlay_resize_handle"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_gravity="bottom|end"
+        android:gravity="center"
+        android:text="⤡"
+        android:textColor="#80FFFFFF"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:background="#00000000"
+        android:contentDescription="Resize overlay"
+        />
+</FrameLayout>
