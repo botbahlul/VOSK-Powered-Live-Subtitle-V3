@@ -57,6 +57,7 @@ import java.util.zip.ZipInputStream;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String TAG = "MainActivity";
     public static AudioManager audio;
     public static int mStreamVolume;
 
@@ -521,9 +522,9 @@ public class MainActivity extends AppCompatActivity {
         RECOGNIZING_STATUS.IS_RECOGNIZING = false;
         RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
         setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
-        OVERLAYING_STATUS.IS_OVERLAYING = false;
-        OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-        setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+        MIC_BUTTON_STATUS.IS_OVERLAYING = false;
+        MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+        setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
 
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager.isNotificationPolicyAccessGranted()) {
@@ -570,7 +571,7 @@ public class MainActivity extends AppCompatActivity {
                 textview_recognizing.setVisibility(View.VISIBLE);
                 setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
                 textview_overlaying.setVisibility(View.VISIBLE);
-                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
                 textview_output_messages.setVisibility(View.VISIBLE);
                 if (LANGUAGE.SRC != null) {
                     String ls  = "LANGUAGE.SRC = " + LANGUAGE.SRC;
@@ -679,7 +680,7 @@ public class MainActivity extends AppCompatActivity {
                 stop_create_overlay_translation_text();
                 stop_create_overlay_mic_button();
 
-                if (OVERLAYING_STATUS.IS_OVERLAYING) {
+                if (MIC_BUTTON_STATUS.IS_OVERLAYING) {
                     if (!RECOGNIZING_STATUS.IS_RECOGNIZING) {
                         if (create_overlay_mic_button.mic_button != null) create_overlay_mic_button.mic_button.setImageResource(R.drawable.ic_mic_black_off);
                     } else {
@@ -704,9 +705,9 @@ public class MainActivity extends AppCompatActivity {
                             RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
                             setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
 
-                            OVERLAYING_STATUS.IS_OVERLAYING = false;
-                            OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                            setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                            MIC_BUTTON_STATUS.IS_OVERLAYING = false;
+                            MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+                            setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
 
                             String msg = "You have to download the model first";
                             setText(textview_output_messages, msg);
@@ -714,7 +715,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
-                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -773,7 +774,7 @@ public class MainActivity extends AppCompatActivity {
                 stop_create_overlay_translation_text();
                 stop_create_overlay_mic_button();
 
-                if (OVERLAYING_STATUS.IS_OVERLAYING) {
+                if (MIC_BUTTON_STATUS.IS_OVERLAYING) {
                     if (!RECOGNIZING_STATUS.IS_RECOGNIZING) {
                         if (create_overlay_mic_button.mic_button != null) create_overlay_mic_button.mic_button.setImageResource(R.drawable.ic_mic_black_off);
                     } else {
@@ -789,7 +790,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
-                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -898,11 +899,11 @@ public class MainActivity extends AppCompatActivity {
         button_toggle_overlay.setOnClickListener(v -> {
             setText(textview_output_messages,"");
             if (Objects.equals(VOSK_MODEL.ISO_CODE, "en-US")) {
-                OVERLAYING_STATUS.IS_OVERLAYING = !OVERLAYING_STATUS.IS_OVERLAYING;
-                OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                MIC_BUTTON_STATUS.IS_OVERLAYING = !MIC_BUTTON_STATUS.IS_OVERLAYING;
+                MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+                setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
 
-                if (OVERLAYING_STATUS.IS_OVERLAYING) {
+                if (MIC_BUTTON_STATUS.IS_OVERLAYING) {
                     if (Settings.canDrawOverlays(getApplicationContext())) {
                         start_create_overlay_mic_button();
                         start_create_overlay_translation_text();
@@ -916,17 +917,17 @@ public class MainActivity extends AppCompatActivity {
                             if (Settings.canDrawOverlays(getApplicationContext())) {
                                 start_create_overlay_mic_button();
                                 start_create_overlay_translation_text();
-                                OVERLAYING_STATUS.IS_OVERLAYING = true;
+                                MIC_BUTTON_STATUS.IS_OVERLAYING = true;
                                 String os = "Overlay permission granted";
                                 setText(textview_output_messages, os);
                             }
                             else {
-                                OVERLAYING_STATUS.IS_OVERLAYING = false;
+                                MIC_BUTTON_STATUS.IS_OVERLAYING = false;
                                 String os = "Failed to get overlay permission in 15 seconds, please retry to tap TOGGLE OVERLAY button again";
                                 setText(textview_output_messages, os);
                             }
-                            OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                            setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                            MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+                            setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
                         }, 15000);
                     }
 
@@ -936,7 +937,7 @@ public class MainActivity extends AppCompatActivity {
                     stop_create_overlay_mic_button();
                     RECOGNIZING_STATUS.IS_RECOGNIZING = false;
                     setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
-                    setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                    setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
                     VOICE_TEXT.STRING = "";
                     TRANSLATION_TEXT.STRING = "";
                     MainActivity.voice_text.setText("");
@@ -961,12 +962,12 @@ public class MainActivity extends AppCompatActivity {
             }
             else {
                 if (new File(VOSK_MODEL.EXTRACTED_PATH + VOSK_MODEL.ISO_CODE).exists()) {
-                    OVERLAYING_STATUS.IS_OVERLAYING = !OVERLAYING_STATUS.IS_OVERLAYING;
-                    OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                    setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                    MIC_BUTTON_STATUS.IS_OVERLAYING = !MIC_BUTTON_STATUS.IS_OVERLAYING;
+                    MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+                    setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
                     setText(textview_output_messages,"");
 
-                    if (OVERLAYING_STATUS.IS_OVERLAYING) {
+                    if (MIC_BUTTON_STATUS.IS_OVERLAYING) {
                         if (Settings.canDrawOverlays(getApplicationContext())) {
                             start_create_overlay_mic_button();
                             start_create_overlay_translation_text();
@@ -980,17 +981,17 @@ public class MainActivity extends AppCompatActivity {
                                 if (Settings.canDrawOverlays(getApplicationContext())) {
                                     start_create_overlay_mic_button();
                                     start_create_overlay_translation_text();
-                                    OVERLAYING_STATUS.IS_OVERLAYING = true;
+                                    MIC_BUTTON_STATUS.IS_OVERLAYING = true;
                                     String os = "Overlay permission granted";
                                     setText(textview_output_messages, os);
                                 }
                                 else {
-                                    OVERLAYING_STATUS.IS_OVERLAYING = false;
+                                    MIC_BUTTON_STATUS.IS_OVERLAYING = false;
                                     String os = "Failed to get overlay permission in 15 seconds, please retry to tap TOGGLE OVERLAY button again";
                                     setText(textview_output_messages, os);
                                 }
-                                OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                                setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                                MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+                                setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
                             }, 15000);
                         }
 
@@ -1000,7 +1001,7 @@ public class MainActivity extends AppCompatActivity {
                         stop_create_overlay_mic_button();
                         RECOGNIZING_STATUS.IS_RECOGNIZING = false;
                         setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
-                        setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                        setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
                         setText(textview_output_messages, "");
                         VOICE_TEXT.STRING = "";
                         TRANSLATION_TEXT.STRING = "";
@@ -1033,9 +1034,9 @@ public class MainActivity extends AppCompatActivity {
                     RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
                     setText(textview_recognizing, RECOGNIZING_STATUS.STRING);
 
-                    OVERLAYING_STATUS.IS_OVERLAYING = false;
-                    OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                    setText(textview_overlaying, OVERLAYING_STATUS.STRING);
+                    MIC_BUTTON_STATUS.IS_OVERLAYING = false;
+                    MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+                    setText(textview_overlaying, MIC_BUTTON_STATUS.STRING);
                 }
             }
         });
@@ -1054,7 +1055,10 @@ public class MainActivity extends AppCompatActivity {
         stop_create_overlay_translation_text();
         stop_create_overlay_mic_button();
         stop_vosk_voice_recognizer();
-        audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, mStreamVolume, AudioManager.ADJUST_SAME);
+        //audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, mStreamVolume, AudioManager.ADJUST_SAME);
+        audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, mStreamVolume, 0);
+        Log.d(TAG, "onBackPressed: mStreamVolume = " + mStreamVolume);
+        //Log.d(TAG, "onBackPressed: mMusicVolume = " + mMusicVolume);
         finish();
     }
 
@@ -1064,7 +1068,10 @@ public class MainActivity extends AppCompatActivity {
         stop_create_overlay_translation_text();
         stop_create_overlay_mic_button();
         stop_vosk_voice_recognizer();
-        audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, mStreamVolume, AudioManager.ADJUST_SAME);
+        //audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, mStreamVolume, AudioManager.ADJUST_SAME);
+        audio.setStreamVolume(AudioManager.STREAM_NOTIFICATION, mStreamVolume, 0);
+        Log.d(TAG, "onDestroy: mStreamVolume = " + mStreamVolume);
+        //Log.d(TAG, "onDestroy: mMusicVolume = " + mMusicVolume);
     }
 
     public void setup_src_spinner(ArrayList<String> supported_languages) {

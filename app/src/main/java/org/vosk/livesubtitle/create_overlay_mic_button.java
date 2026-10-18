@@ -39,15 +39,16 @@ public class create_overlay_mic_button extends Service{
         if (mGlobalOverlay_mic_button != null) {
             mGlobalOverlay_mic_button.removeOverlayView(mic_button);
         }
-        if (IS_OVER_REMOVEVIEW.IS_OVER) {
+
+        if (!MIC_BUTTON_STATUS.IS_OVERLAYING) {
             stop_vosk_voice_recognizer();
             stop_create_overlay_translation_text();
             RECOGNIZING_STATUS.IS_RECOGNIZING = false;
             RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
             MainActivity.textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
-            OVERLAYING_STATUS.IS_OVERLAYING = false;
-            OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-            MainActivity.textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+            MIC_BUTTON_STATUS.IS_OVERLAYING = false;
+            MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+            MainActivity.textview_overlaying.setText(MIC_BUTTON_STATUS.STRING);
             MainActivity.textview_output_messages.setText("");
             VOICE_TEXT.STRING = "";
             TRANSLATION_TEXT.STRING = "";
@@ -89,8 +90,8 @@ public class create_overlay_mic_button extends Service{
         MainActivity.full_voice_text.setHint("Recognized sentences");
         RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
         MainActivity.textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
-        OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-        MainActivity.textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+        MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+        MainActivity.textview_overlaying.setText(MIC_BUTTON_STATUS.STRING);
     }
 
     private void create_mic_button() {
@@ -183,9 +184,9 @@ public class create_overlay_mic_button extends Service{
                                 RECOGNIZING_STATUS.STRING = "RECOGNIZING_STATUS.IS_RECOGNIZING = " + RECOGNIZING_STATUS.IS_RECOGNIZING;
                                 MainActivity.textview_recognizing.setText(RECOGNIZING_STATUS.STRING);
 
-                                OVERLAYING_STATUS.IS_OVERLAYING = false;
-                                OVERLAYING_STATUS.STRING = "OVERLAYING_STATUS.IS_OVERLAYING = " + OVERLAYING_STATUS.IS_OVERLAYING;
-                                MainActivity.textview_overlaying.setText(OVERLAYING_STATUS.STRING);
+                                MIC_BUTTON_STATUS.IS_OVERLAYING = false;
+                                MIC_BUTTON_STATUS.STRING = "MIC_BUTTON_STATUS.IS_OVERLAYING = " + MIC_BUTTON_STATUS.IS_OVERLAYING;
+                                MainActivity.textview_overlaying.setText(MIC_BUTTON_STATUS.STRING);
 
                                 stopSelf();
                             }
