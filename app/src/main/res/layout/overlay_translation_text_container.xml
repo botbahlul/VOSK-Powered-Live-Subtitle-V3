@@ -15,7 +15,6 @@
         android:focusableInTouchMode="false"
         android:background="#00000000"
         android:textAlignment="gravity"
-        android:maxLines="6"
         android:textSize="18sp"
         android:textColor="#FFFF00"
         android:textColorHint="#757575"

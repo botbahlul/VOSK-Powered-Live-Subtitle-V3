@@ -214,7 +214,10 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
 					.replace("\"", "");
         }
         if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
-			VOICE_TEXT.STRING = results.toLowerCase(Locale.forLanguageTag(LANGUAGE.SRC));
+			VOICE_TEXT.STRING = results.trim();
+			if (VOICE_TEXT.STRING != null && !VOICE_TEXT.STRING.isEmpty()) {
+				VOICE_TEXT.STRING = VOICE_TEXT.STRING.substring(0, 1).toUpperCase() + VOICE_TEXT.STRING.substring(1);
+			}
 			MainActivity.voice_text.setText(VOICE_TEXT.STRING);
 			MainActivity.voice_text.setSelection(MainActivity.voice_text.getText().length());
         }
@@ -234,9 +237,12 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
 		}
 
 		if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
-			VOICE_TEXT.STRING = results.toLowerCase(Locale.forLanguageTag(LANGUAGE.SRC));
+			VOICE_TEXT.STRING = results.trim();
 			if (!VOICE_TEXT.STRING.isEmpty()) {
 				lastVoiceString = VOICE_TEXT.STRING;
+				if (lastVoiceString != null && !lastVoiceString.isEmpty()) {
+					lastVoiceString = lastVoiceString.substring(0, 1).toUpperCase() + lastVoiceString.substring(1);
+				}
 			}
 			if (MainActivity.full_voice_text != null && !lastVoiceString.isEmpty()) {
 				appendText(MainActivity.full_voice_text, lastVoiceString);
@@ -299,7 +305,10 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
 		}
 
         if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
-            VOICE_TEXT.STRING = results.toLowerCase(Locale.forLanguageTag(LANGUAGE.SRC));
+            VOICE_TEXT.STRING = results.trim();
+			if (VOICE_TEXT.STRING != null && !VOICE_TEXT.STRING.isEmpty()) {
+				VOICE_TEXT.STRING = VOICE_TEXT.STRING.substring(0, 1).toUpperCase() + VOICE_TEXT.STRING.substring(1);
+			}
             MainActivity.voice_text.setText(VOICE_TEXT.STRING);
             MainActivity.voice_text.setSelection(MainActivity.voice_text.getText().length());
         }
@@ -542,23 +551,26 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
 
 			handler.post(() -> {
 				TRANSLATION_TEXT.STRING = TRANSLATION.toString();
-				if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
-					if (create_overlay_translation_text.overlay_translation_text_container != null) {
-						create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
-						create_overlay_translation_text.overlay_translation_text_container.setBackgroundColor(Color.parseColor("#80000000"));
-						create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
-						create_overlay_translation_text.overlay_translation_text.setBackgroundColor(Color.TRANSPARENT);
-						create_overlay_translation_text.overlay_translation_text.setTextIsSelectable(true);
-						create_overlay_translation_text.overlay_translation_text.setHighlightColor(Color.TRANSPARENT);
-						create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
-						create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
-						create_overlay_translation_text.overlay_translation_text.setTextColor(Color.parseColor("#FFFF00"));
-						//android.util.Log.d("SubtitleDebug", "textColor=" + Integer.toHexString(create_overlay_translation_text.overlay_translation_text.getCurrentTextColor()) + ", alpha=" + create_overlay_translation_text.overlay_translation_text.getAlpha() + ", layerType=" + create_overlay_translation_text.overlay_translation_text.getLayerType() + ", backgroundAlpha=" + (create_overlay_translation_text.overlay_translation_text.getBackground() != null ? create_overlay_translation_text.overlay_translation_text.getBackground().getAlpha() : -1));
-					}
-				} else {
-					if (create_overlay_translation_text.overlay_translation_text_container != null) {
-						create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
-						create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
+				if (TRANSLATION_TEXT.STRING != null && !TRANSLATION_TEXT.STRING.isEmpty()) {
+					TRANSLATION_TEXT.STRING = TRANSLATION_TEXT.STRING.substring(0, 1).toUpperCase() + TRANSLATION_TEXT.STRING.substring(1);
+					if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
+						if (create_overlay_translation_text.overlay_translation_text_container != null) {
+							create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
+							create_overlay_translation_text.overlay_translation_text_container.setBackgroundColor(Color.parseColor("#80000000"));
+							create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
+							create_overlay_translation_text.overlay_translation_text.setBackgroundColor(Color.TRANSPARENT);
+							create_overlay_translation_text.overlay_translation_text.setTextIsSelectable(true);
+							create_overlay_translation_text.overlay_translation_text.setHighlightColor(Color.TRANSPARENT);
+							create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
+							create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
+							create_overlay_translation_text.overlay_translation_text.setTextColor(Color.parseColor("#FFFF00"));
+							//android.util.Log.d("SubtitleDebug", "textColor=" + Integer.toHexString(create_overlay_translation_text.overlay_translation_text.getCurrentTextColor()) + ", alpha=" + create_overlay_translation_text.overlay_translation_text.getAlpha() + ", layerType=" + create_overlay_translation_text.overlay_translation_text.getLayerType() + ", backgroundAlpha=" + (create_overlay_translation_text.overlay_translation_text.getBackground() != null ? create_overlay_translation_text.overlay_translation_text.getBackground().getAlpha() : -1));
+						}
+					} else {
+						if (create_overlay_translation_text.overlay_translation_text_container != null) {
+							create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
+							create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
+						}
 					}
 				}
 			});
@@ -618,23 +630,26 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
 
 				handler.post(() -> {
 					TRANSLATION_TEXT.STRING = TRANSLATION.toString();
-					if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
-						if (create_overlay_translation_text.overlay_translation_text_container != null) {
-							create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
-							create_overlay_translation_text.overlay_translation_text_container.setBackgroundColor(Color.parseColor("#80000000"));
-							create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
-							create_overlay_translation_text.overlay_translation_text.setBackgroundColor(Color.TRANSPARENT);
-							create_overlay_translation_text.overlay_translation_text.setTextIsSelectable(true);
-							create_overlay_translation_text.overlay_translation_text.setHighlightColor(Color.TRANSPARENT);
-							create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
-							create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
-							create_overlay_translation_text.overlay_translation_text.setTextColor(Color.parseColor("#FFFF00"));
-							//android.util.Log.d("SubtitleDebug", "textColor=" + Integer.toHexString(create_overlay_translation_text.overlay_translation_text.getCurrentTextColor()) + ", alpha=" + create_overlay_translation_text.overlay_translation_text.getAlpha() + ", layerType=" + create_overlay_translation_text.overlay_translation_text.getLayerType() + ", backgroundAlpha=" + (create_overlay_translation_text.overlay_translation_text.getBackground() != null ? create_overlay_translation_text.overlay_translation_text.getBackground().getAlpha() : -1));
-						}
-					} else {
-						if (create_overlay_translation_text.overlay_translation_text_container != null) {
-							create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
-							create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
+					if (TRANSLATION_TEXT.STRING != null && !TRANSLATION_TEXT.STRING.isEmpty()) {
+						TRANSLATION_TEXT.STRING = TRANSLATION_TEXT.STRING.substring(0, 1).toUpperCase() + TRANSLATION_TEXT.STRING.substring(1);
+						if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
+							if (create_overlay_translation_text.overlay_translation_text_container != null) {
+								create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.VISIBLE);
+								create_overlay_translation_text.overlay_translation_text_container.setBackgroundColor(Color.parseColor("#80000000"));
+								create_overlay_translation_text.overlay_translation_text.setVisibility(View.VISIBLE);
+								create_overlay_translation_text.overlay_translation_text.setBackgroundColor(Color.TRANSPARENT);
+								create_overlay_translation_text.overlay_translation_text.setTextIsSelectable(true);
+								create_overlay_translation_text.overlay_translation_text.setHighlightColor(Color.TRANSPARENT);
+								create_overlay_translation_text.overlay_translation_text.setText(TRANSLATION_TEXT.STRING);
+								create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
+								create_overlay_translation_text.overlay_translation_text.setTextColor(Color.parseColor("#FFFF00"));
+								//android.util.Log.d("SubtitleDebug", "textColor=" + Integer.toHexString(create_overlay_translation_text.overlay_translation_text.getCurrentTextColor()) + ", alpha=" + create_overlay_translation_text.overlay_translation_text.getAlpha() + ", layerType=" + create_overlay_translation_text.overlay_translation_text.getLayerType() + ", backgroundAlpha=" + (create_overlay_translation_text.overlay_translation_text.getBackground() != null ? create_overlay_translation_text.overlay_translation_text.getBackground().getAlpha() : -1));
+							}
+						} else {
+							if (create_overlay_translation_text.overlay_translation_text_container != null) {
+								create_overlay_translation_text.overlay_translation_text.setVisibility(View.INVISIBLE);
+								create_overlay_translation_text.overlay_translation_text_container.setVisibility(View.INVISIBLE);
+							}
 						}
 					}
 				});
@@ -713,46 +728,47 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
 
 			handler.post(() -> {
 				translatedLastVoiceString = TRANSLATION.toString();
-				if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
-					if (create_overlay_translation_text.overlay_full_translation_text_container != null) {
-						create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.VISIBLE);
-						create_overlay_translation_text.overlay_full_translation_text_container.setBackgroundColor(Color.parseColor("#80000000"));
-						create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.VISIBLE);
-						create_overlay_translation_text.overlay_full_translation_text.setBackgroundColor(Color.TRANSPARENT);
-						create_overlay_translation_text.overlay_full_translation_text.setTextIsSelectable(true);
-						create_overlay_translation_text.overlay_full_translation_text.setHighlightColor(Color.TRANSPARENT);
-						appendText(create_overlay_translation_text.overlay_full_translation_text, "\n" + translatedLastVoiceString);
-						create_overlay_translation_text.overlay_full_translation_text.setSelection(create_overlay_translation_text.overlay_full_translation_text.getText().length());
-						create_overlay_translation_text.overlay_full_translation_text.setTextColor(Color.parseColor("#FF00FFFF"));
-						// 1. Makes Spannable
-						Spannable spannableString = new SpannableStringBuilder(translatedLastVoiceString);
+				if (translatedLastVoiceString != null && !translatedLastVoiceString.isEmpty()) {
+					translatedLastVoiceString = translatedLastVoiceString.substring(0, 1).toUpperCase() + translatedLastVoiceString.substring(1);
+					if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
+						if (create_overlay_translation_text.overlay_full_translation_text_container != null) {
+							create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.VISIBLE);
+							create_overlay_translation_text.overlay_full_translation_text_container.setBackgroundColor(Color.parseColor("#80000000"));
+							create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.VISIBLE);
+							create_overlay_translation_text.overlay_full_translation_text.setBackgroundColor(Color.TRANSPARENT);
+							create_overlay_translation_text.overlay_full_translation_text.setTextIsSelectable(true);
+							create_overlay_translation_text.overlay_full_translation_text.setHighlightColor(Color.TRANSPARENT);
+							appendText(create_overlay_translation_text.overlay_full_translation_text, "\n" + translatedLastVoiceString);
+							create_overlay_translation_text.overlay_full_translation_text.setSelection(create_overlay_translation_text.overlay_full_translation_text.getText().length());
+							/*
+							create_overlay_translation_text.overlay_full_translation_text.setTextColor(Color.parseColor("#FF00FFFF"));
+							// 1. Makes Spannable
+							Spannable spannableString = new SpannableStringBuilder(translatedLastVoiceString);
+							// 2. Validate the index to ensure it does not exceed the text length (prevents crashes)
+							int textLength = translatedLastVoiceString.length();
+							int selectionEnd = create_overlay_translation_text.overlay_translation_text.getSelectionEnd();
+							int safeEnd = Math.max(0, Math.min(selectionEnd, textLength)); // Aman dari IndexOutOfBounds
+							// 3. Apply Span using safeEnd
+							spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FFFF00")),
+									0,
+									safeEnd,
+									Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // Gunakan flag standar yang valid
 
-						// 2. Validate the index to ensure it does not exceed the text length (prevents crashes)
-						int textLength = translatedLastVoiceString.length();
-						int selectionEnd = create_overlay_translation_text.overlay_translation_text.getSelectionEnd();
-						int safeEnd = Math.max(0, Math.min(selectionEnd, textLength)); // Aman dari IndexOutOfBounds
+							spannableString.setSpan(new BackgroundColorSpan(Color.parseColor("#80000000")),
+									0,
+									safeEnd,
+									Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-						// 3. Apply Span using safeEnd
-						spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FFFF00")),
-								0,
-								safeEnd,
-								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // Gunakan flag standar yang valid
-
-						spannableString.setSpan(new BackgroundColorSpan(Color.parseColor("#80000000")),
-								0,
-								safeEnd,
-								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-						create_overlay_translation_text.overlay_translation_text.setText(spannableString);
-						create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
-						create_overlay_translation_text.overlay_full_translation_text.setGravity(Gravity.BOTTOM);
-
-						create_overlay_translation_text.overlay_full_translation_text.setGravity(Gravity.BOTTOM);
-					}
-				} else {
-					if (create_overlay_translation_text.overlay_full_translation_text_container != null) {
-						create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.INVISIBLE);
-						create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.INVISIBLE);
+							create_overlay_translation_text.overlay_translation_text.setText(spannableString);
+							create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
+							*/
+							create_overlay_translation_text.overlay_full_translation_text.setGravity(Gravity.BOTTOM);
+						}
+					} else {
+						if (create_overlay_translation_text.overlay_full_translation_text_container != null) {
+							create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.INVISIBLE);
+							create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.INVISIBLE);
+						}
 					}
 				}
 			});
@@ -812,46 +828,45 @@ public class VoskVoiceRecognizer extends Service implements RecognitionListener 
 
 				handler.post(() -> {
 					translatedLastVoiceString = TRANSLATION.toString();
-					if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
-						if (create_overlay_translation_text.overlay_full_translation_text_container != null) {
-							create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.VISIBLE);
-							create_overlay_translation_text.overlay_full_translation_text_container.setBackgroundColor(Color.parseColor("#80000000"));
-							create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.VISIBLE);
-							create_overlay_translation_text.overlay_full_translation_text.setBackgroundColor(Color.TRANSPARENT);
-							create_overlay_translation_text.overlay_full_translation_text.setTextIsSelectable(true);
-							create_overlay_translation_text.overlay_full_translation_text.setHighlightColor(Color.TRANSPARENT);
-							appendText(create_overlay_translation_text.overlay_full_translation_text, "\n" + translatedLastVoiceString);
-							create_overlay_translation_text.overlay_full_translation_text.setSelection(create_overlay_translation_text.overlay_full_translation_text.getText().length());
-							create_overlay_translation_text.overlay_full_translation_text.setTextColor(Color.parseColor("#FF00FFFF"));
-							// 1. Makes Spannable
-							Spannable spannableString = new SpannableStringBuilder(translatedLastVoiceString);
-
-							// 2. Validate the index to ensure it does not exceed the text length (prevents crashes)
-							int textLength = translatedLastVoiceString.length();
-							int selectionEnd = create_overlay_translation_text.overlay_translation_text.getSelectionEnd();
-							int safeEnd = Math.max(0, Math.min(selectionEnd, textLength)); // Aman dari IndexOutOfBounds
-
-							// 3. Apply Span using safeEnd
-							spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FFFF00")),
-									0,
-									safeEnd,
-									Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // Gunakan flag standar yang valid
-
-							spannableString.setSpan(new BackgroundColorSpan(Color.parseColor("#80000000")),
-									0,
-									safeEnd,
-									Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-							create_overlay_translation_text.overlay_translation_text.setText(spannableString);
-							create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
-							create_overlay_translation_text.overlay_full_translation_text.setGravity(Gravity.BOTTOM);
-
-							create_overlay_translation_text.overlay_full_translation_text.setGravity(Gravity.BOTTOM);
-						}
-					} else {
-						if (create_overlay_translation_text.overlay_full_translation_text_container != null) {
-							create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.INVISIBLE);
-							create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.INVISIBLE);
+					if (translatedLastVoiceString != null && !translatedLastVoiceString.isEmpty()) {
+						translatedLastVoiceString = translatedLastVoiceString.substring(0, 1).toUpperCase() + translatedLastVoiceString.substring(1);
+						if (RECOGNIZING_STATUS.IS_RECOGNIZING) {
+							if (create_overlay_translation_text.overlay_full_translation_text_container != null) {
+								create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.VISIBLE);
+								create_overlay_translation_text.overlay_full_translation_text_container.setBackgroundColor(Color.parseColor("#80000000"));
+								create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.VISIBLE);
+								create_overlay_translation_text.overlay_full_translation_text.setBackgroundColor(Color.TRANSPARENT);
+								create_overlay_translation_text.overlay_full_translation_text.setTextIsSelectable(true);
+								create_overlay_translation_text.overlay_full_translation_text.setHighlightColor(Color.TRANSPARENT);
+								appendText(create_overlay_translation_text.overlay_full_translation_text, "\n" + translatedLastVoiceString);
+								create_overlay_translation_text.overlay_full_translation_text.setSelection(create_overlay_translation_text.overlay_full_translation_text.getText().length());
+								create_overlay_translation_text.overlay_full_translation_text.setTextColor(Color.parseColor("#FF00FFFF"));
+								/*
+								// 1. Makes Spannable
+								Spannable spannableString = new SpannableStringBuilder(translatedLastVoiceString);
+								// 2. Validate the index to ensure it does not exceed the text length (prevents crashes)
+								int textLength = translatedLastVoiceString.length();
+								int selectionEnd = create_overlay_translation_text.overlay_translation_text.getSelectionEnd();
+								int safeEnd = Math.max(0, Math.min(selectionEnd, textLength)); // safe from IndexOutOfBounds
+								// 3. Apply Span using safeEnd
+								spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#FFFF00")),
+										0,
+										safeEnd,
+										Spannable.SPAN_EXCLUSIVE_EXCLUSIVE); // use valid standar flag
+								spannableString.setSpan(new BackgroundColorSpan(Color.parseColor("#80000000")),
+										0,
+										safeEnd,
+										Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+								create_overlay_translation_text.overlay_translation_text.setText(spannableString);
+								create_overlay_translation_text.overlay_translation_text.setSelection(create_overlay_translation_text.overlay_translation_text.getText().length());
+								*/
+								create_overlay_translation_text.overlay_full_translation_text.setGravity(Gravity.BOTTOM);
+							}
+						} else {
+							if (create_overlay_translation_text.overlay_full_translation_text_container != null) {
+								create_overlay_translation_text.overlay_full_translation_text.setVisibility(View.INVISIBLE);
+								create_overlay_translation_text.overlay_full_translation_text_container.setVisibility(View.INVISIBLE);
+							}
 						}
 					}
 				});

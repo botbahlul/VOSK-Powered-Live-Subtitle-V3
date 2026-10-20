@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.graphics.Color;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,7 +106,6 @@ public class GlobalOverlay {
 
         TextView overlay_close_handle = new TextView(mContext);
         overlay_close_handle.setText("×");
-        //overlay_close_handle.setTextColor(Color.WHITE);
         overlay_close_handle.setTextColor(Color.parseColor("#80FFFFFF"));
         overlay_close_handle.setTextSize(24);
         overlay_close_handle.setGravity(Gravity.CENTER);
@@ -126,15 +126,13 @@ public class GlobalOverlay {
 
         overlay_close_handle.setLayoutParams(params);
 
-        //overlay_close_handle.setOnClickListener(v -> {
-        //    removeOverlayView(overlayView, true);
-        //});
         overlay_close_handle.setOnClickListener(v -> {
             closeOverlayWindow(overlayView);
         });
 
         container.addView(overlay_close_handle);
     }
+
 
     private void setTouchListenerRecursively(View view, View.OnTouchListener dragListener, View.OnTouchListener resizeListener) {
         if (view.getContentDescription() != null &&
@@ -198,7 +196,6 @@ public class GlobalOverlay {
         } catch (Exception ignored) {
         }
     }
-
     private View.OnTouchListener newSimpleOnTouchListener(final View overlayView, final OverlayState state) {
         return new View.OnTouchListener() {
             private final int[] overlayViewLocation = {0, 0};
@@ -238,14 +235,13 @@ public class GlobalOverlay {
 
                             overlayView.getLocationOnScreen(overlayViewLocation);
                             mRemoveView.getLocationOnScreen(removeViewLocation);
-                            state.isOverRemoveView = isOverlayTouchingRemoveView(overlayView);
 
+                            state.isOverRemoveView = isOverlayTouchingRemoveView(overlayView);
                         }
                         return true;
 
                     case MotionEvent.ACTION_UP:
                         state.isOverRemoveView = isOverlayTouchingRemoveView(overlayView);
-                        //IS_OVER_REMOVEVIEW.IS_OVER = state.isOverRemoveView;
                         if (state.isOverRemoveView) {
                             removeOverlayView(overlayView, true);
                         } else if (!state.isDragging && state.onClickListener != null) {
@@ -255,14 +251,12 @@ public class GlobalOverlay {
                         mRemoveView.setVisibility(View.GONE);
                         state.isOverRemoveView = false;
                         state.isDragging = false;
-                        //IS_OVER_REMOVEVIEW.IS_OVER = false;
                         return true;
 
                     case MotionEvent.ACTION_CANCEL:
                         mRemoveView.setVisibility(View.GONE);
                         state.isOverRemoveView = false;
                         state.isDragging = false;
-                        //IS_OVER_REMOVEVIEW.IS_OVER = false;
                         return true;
                 }
 
@@ -297,7 +291,6 @@ public class GlobalOverlay {
 
                         mRemoveView.setVisibility(View.GONE);
                         state.isOverRemoveView = false;
-                        //IS_OVER_REMOVEVIEW.IS_OVER = false;
                         return true;
 
                     case MotionEvent.ACTION_MOVE:
@@ -390,7 +383,7 @@ public class GlobalOverlay {
         }
 
         params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
-        params.y = 56;
+        params.y = 32;
         return params;
     }
 
@@ -410,7 +403,6 @@ public class GlobalOverlay {
         }
 
         state.isOverRemoveView = false;
-        //IS_OVER_REMOVEVIEW.IS_OVER = false;
 
         if (mOverlayStates.isEmpty()) {
             mRemoveView.setVisibility(View.GONE);
