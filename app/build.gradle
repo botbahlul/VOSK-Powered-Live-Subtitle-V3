@@ -11,9 +11,8 @@ android {
         minSdk 23
         targetSdk 33
         versionCode 1
-        versionName "1.1.1"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionName "1.1.2"
+        //testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -41,7 +40,7 @@ dependencies {
     //implementation files('libs/vosk-android-0.3.32.aar')
     implementation project(':models')
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    //testImplementation 'junit:junit:4.12'
+    //androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    //androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }

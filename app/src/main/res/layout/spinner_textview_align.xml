@@ -2,9 +2,10 @@
 	<TextView
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:id="@+id/textView1"
+		android:gravity="start"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textSize="16sp"
 		android:textAlignment="gravity"
-		android:gravity="center"
+		android:textColor="?android:attr/textColorPrimary"
 	/>
